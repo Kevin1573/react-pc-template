@@ -36,7 +36,7 @@ export default defineConfig({
   },
   css: { preprocessorOptions: { scss: { api: "modern" } } },
   build: {
-    chunkSizeWarningLimit: 1500, // 消除打包大小超过500kb(默认值)的警告
+    chunkSizeWarningLimit: 2500, // 消除打包大小超过500kb(默认值)的警告
     rollupOptions: {
       input: {
         index: path.resolve(__dirname, ".", "index.html"),
