@@ -1,0 +1,10 @@
+.svgIcon {
+  fill: currentColor;
+  overflow: hidden;
+}
+
+.svgExternalIcon {
+  background-color: currentColor;
+  mask-size: cover !important;
+  display: inline-block;
+}

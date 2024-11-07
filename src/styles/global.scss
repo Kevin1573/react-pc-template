@@ -1,0 +1,62 @@
+/* 外边距、内边距全局样式 */
+@for $i from 1 through 35 {
+  .mg#{$i} {
+    margin: #{$i}px !important;
+  }
+  .mt#{$i} {
+    margin-top: #{$i}px !important;
+  }
+  .mr#{$i} {
+    margin-right: #{$i}px !important;
+  }
+  .mb#{$i} {
+    margin-bottom: #{$i}px !important;
+  }
+  .ml#{$i} {
+    margin-left: #{$i}px !important;
+  }
+  .pd#{$i} {
+    padding: #{$i}px !important;
+  }
+  .pt#{$i} {
+    padding-top: #{$i}px !important;
+  }
+  .pr#{$i} {
+    padding-right: #{$i}px !important;
+  }
+  .pb#{$i} {
+    padding-bottom: #{$i}px !important;
+  }
+  .pl#{$i} {
+    padding-left: #{$i}px !important;
+  }
+}
+
+/* 字体大小全局样式 */
+@for $i from 10 through 32 {
+  .font#{$i} {
+    font-size: #{$i}px !important;
+  }
+}
+
+/* cursor 鼠标形状样式 */
+// 默认
+.cursor-default {
+  cursor: default !important;
+}
+// 帮助
+.cursor-help {
+  cursor: help !important;
+}
+// 手指
+.cursor-pointer {
+  cursor: pointer !important;
+}
+// 移动
+.cursor-move {
+  cursor: move !important;
+}
+// 拖动
+.cursor-grab {
+  cursor: grab !important;
+}
