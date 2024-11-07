@@ -23,20 +23,20 @@
 
 1. **克隆项目**
 
-```
-https://gitee.com/mj-project/react-pc-template.git
+```bash
+git clone https://gitee.com/mj-project/react-pc-template.git
 ```
 
 2. **安装依赖**
 
-```
+```bash
 cd react-pc-template
 pnpm install
 ```
 
 3. **启动**
 
-```
+```bash
 pnpm dev
 ```
 
