@@ -8,7 +8,7 @@ export default <PageRouteItem[]>[
     element: "/Home/index",
     meta: {
       label: "首页",
-      icon: "github",
+      icon: "TdesignHome",
       isRouter: true,
     },
   },
@@ -20,7 +20,7 @@ export default <PageRouteItem[]>[
     element: null,
     meta: {
       label: "表格",
-      icon: "gitee",
+      icon: "TdesignTable",
       isRouter: false,
     },
   },
@@ -32,7 +32,7 @@ export default <PageRouteItem[]>[
     element: "/Tables/BasicTable",
     meta: {
       label: "基础表格",
-      icon: null,
+      icon: "TdesignTable1",
       isRouter: true,
     },
   },
@@ -44,7 +44,7 @@ export default <PageRouteItem[]>[
     element: null,
     meta: {
       label: "异常页",
-      icon: "gitee",
+      icon: "TdesignChatBubbleError",
       isRouter: false,
     },
   },
@@ -56,7 +56,7 @@ export default <PageRouteItem[]>[
     element: "/Error/403",
     meta: {
       label: "403",
-      icon: null,
+      icon: "TdesignErrorCircle",
       isRouter: true,
     },
   },
@@ -68,7 +68,7 @@ export default <PageRouteItem[]>[
     element: "/Error/404",
     meta: {
       label: "404",
-      icon: null,
+      icon: "TdesignErrorTriangle",
       isRouter: true,
     },
   },

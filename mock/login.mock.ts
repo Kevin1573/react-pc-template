@@ -29,7 +29,8 @@ export default defineMock([
       return resultSuccess(
         {
           id: 1,
-          username: "GGBOND",
+          avatar: null,
+          username: "Benson",
         },
         "用户信息获取成功"
       );
