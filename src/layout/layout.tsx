@@ -10,7 +10,7 @@ import ReHeader from "./components/ReHeader";
 import ReSider from "./components/ReSider";
 import styles from "./layout.module.scss";
 
-const { Content, Footer } = Layout;
+const { Content } = Layout;
 
 // 菜单数据处理
 type MenuItem = Required<MenuProps>["items"][number];
@@ -64,9 +64,6 @@ export default function LayoutContent() {
           <div className={styles.wrapper}>
             <Outlet />
           </div>
-          <Footer style={{ textAlign: "center", marginTop: 20 }} className={styles.footer}>
-            Ant Design ©{new Date().getFullYear()} Created by Ant UED
-          </Footer>
         </Content>
       </Layout>
     </Layout>

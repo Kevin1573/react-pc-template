@@ -8,14 +8,15 @@ import { findParentNode } from "@/utils/common";
 import { AdModal } from "@/utils/AntdGlobal";
 import { Local } from "@/utils/storage";
 import ThemeSwitch from "@/components/ThemeSwitch";
-import avatar from "@/assets/images/avatar.jpg";
+import SvgIcon from "@/components/SvgIcon";
+import no_avatar from "@/assets/images/no-avatar.png";
 import styles from "./index.module.scss";
 
 interface UserAvatarProps {
   src: string;
 }
 const UserAvatar = React.memo(({ src }: UserAvatarProps) => {
-  return <Avatar src={src} size={34} alt="avatar" style={{ margin: "0 10px" }} />;
+  return <Avatar src={src} size={38} alt="avatar" style={{ margin: "0 10px" }} />;
 });
 
 const { Header } = Layout;
@@ -28,23 +29,29 @@ interface ReHeaderProps {
 // 下拉菜单项
 const dropdownItems: MenuProps["items"] = [
   {
-    key: "1",
+    key: 1,
+    icon: <SvgIcon name="github" size="1.2em" />,
     label: (
-      <a target="_blank" rel="noopener noreferrer" href="https://www.antgroup.com">
+      <a target="_blank" rel="noopener noreferrer" href="https://github.com/BensonStark">
         GitHub
       </a>
     ),
   },
   {
-    key: "2",
+    key: 2,
+    icon: <SvgIcon name="gitee" size="1.2em" />,
     label: (
-      <a target="_blank" rel="noopener noreferrer" href="https://www.aliyun.com">
+      <a target="_blank" rel="noopener noreferrer" href="https://gitee.com/mj-project">
         Gitee
       </a>
     ),
   },
   {
-    key: "3",
+    type: "divider",
+  },
+  {
+    key: 3,
+    icon: <SvgIcon name="logout" size="1.2em" />,
     label: (
       <a target="" onClick={handleLogout}>
         退出登录
@@ -125,8 +132,8 @@ export default function ReHeader({ menuTree, collapsed, onCollapse }: ReHeaderPr
       </div>
       <div style={{ display: "flex", alignItems: "center" }}>
         <ThemeSwitch />
-        <UserAvatar src={avatar} />
-        <Dropdown menu={{ items: dropdownItems }} placement="bottomLeft" arrow>
+        <UserAvatar src={userInfo?.avatar || no_avatar} />
+        <Dropdown menu={{ items: dropdownItems }} placement="bottomRight" arrow>
           <span onClick={e => e.preventDefault()} style={{ fontWeight: 500 }}>
             {userInfo?.username}
           </span>

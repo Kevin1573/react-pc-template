@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Layout, Menu, theme } from "antd";
+import { Layout, Menu } from "antd";
 import { type ItemType } from "antd/es/menu/interface";
 import { useThemeStore } from "@/store/theme";
 import { findParentNode } from "@/utils/common";
@@ -17,9 +17,6 @@ interface ReSiderProps {
 export default function ReSider({ menuTree, collapsed, onCollapse }: ReSiderProps) {
   const navigate = useNavigate();
 
-  const {
-    token: { colorBgContainer },
-  } = theme.useToken();
   const isDark = useThemeStore(state => state.isDark);
   const { pathname } = useLocation();
   const [defaultKey, setDefaultKey] = useState("/home");
@@ -52,22 +49,21 @@ export default function ReSider({ menuTree, collapsed, onCollapse }: ReSiderProp
     <Sider
       breakpoint="xl"
       width="220"
-      style={{ background: colorBgContainer }}
       trigger={null}
       collapsible={true}
       collapsed={collapsed}
       onBreakpoint={breakpoint}
     >
       <div className={styles.title}>
-        <SvgIcon name="logo" size="1.2em" />
+        <SvgIcon name="logo" size="1.1em" />
         {!collapsed ? <span className="ml6">React PC Template</span> : null}
       </div>
       <Menu
-        theme={isDark === "dark" ? "light" : "dark"}
+        theme={isDark === "dark" ? "dark" : "light"}
         mode="inline"
         selectedKeys={[defaultKey]}
         openKeys={defaultMenu}
-        style={{ height: "100%", borderRight: 0 }}
+        style={{ height: "100%" }}
         items={menuTree}
         onOpenChange={openChange}
         onSelect={changeRoutes}

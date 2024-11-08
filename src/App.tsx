@@ -33,9 +33,6 @@ function App() {
       theme={{
         token: { colorPrimary: "#1677ff" },
         algorithm: isDark === "dark" ? theme.darkAlgorithm : theme.defaultAlgorithm,
-        components: {
-          Menu: { itemSelectedBg: "#1677ff", itemSelectedColor: "#fff" },
-        },
       }}
     >
       <AntdApp>
