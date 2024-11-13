@@ -7,18 +7,20 @@ interface RTableProps<DataType = AnyObjectType> {
   data: DataType[];
   total: number;
   size?: "large" | "middle" | "small";
+  scroll?: TableProps<DataType>["scroll"];
   bordered?: boolean;
   rowSelect?: boolean;
   rowSelectionType?: "checkbox" | "radio";
-  onRowSelect?: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => void;
   pagination?: boolean;
   pageSimple?: boolean;
+  onRowClick?: (record: DataType, event: React.MouseEvent<HTMLElement>) => void;
+  onRowSelect?: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => void;
   onPageChange?: (page: number, pageSize: number) => void;
 }
 
 export interface RTableInstance {
-  clearSelection: () => void;
   setPage: (page: number, pageSize?: number) => void;
+  clearSelection: () => void;
 }
 
 export default fixedForwardRef(function RTable<DataType>(
@@ -27,12 +29,14 @@ export default fixedForwardRef(function RTable<DataType>(
     data,
     total,
     size = "middle",
+    scroll,
     bordered = true,
     rowSelect = false,
     rowSelectionType = "checkbox",
-    onRowSelect,
     pagination = true,
     pageSimple = false,
+    onRowClick,
+    onRowSelect,
     onPageChange,
   }: RTableProps<DataType>,
   ref: any
@@ -55,9 +59,9 @@ export default fixedForwardRef(function RTable<DataType>(
     current: 1,
     pageSize: 5,
     simple: pageSimple && { readOnly: pageSimple },
+    showQuickJumper: false,
     showSizeChanger: !pageSimple && true,
-    showQuickJumper: !pageSimple && true,
-    pageSizeOptions: ["5", "20", "50", "100"],
+    pageSizeOptions: ["5", "15", "30", "50"],
     showTotal: () => (pageSimple ? null : `共 ${total} 条数据`),
     onChange: (page: number, pageSize: number) => {
       setPagiOptions({ ...pagiOptions, current: page, pageSize: pageSize });
@@ -69,12 +73,7 @@ export default fixedForwardRef(function RTable<DataType>(
   useImperativeHandle(
     ref,
     () => ({
-      // 清除多选
-      clearSelection: () => {
-        setSelectedRowKeys([]);
-        onRowSelect && onRowSelect([], []);
-      },
-      // 手动设置分页
+      // 设置分页
       setPage: (page: number, pageSize?: number) => {
         setPagiOptions({
           ...pagiOptions,
@@ -82,8 +81,13 @@ export default fixedForwardRef(function RTable<DataType>(
           pageSize: pageSize ? pageSize : pagiOptions.pageSize,
         });
       },
+      // 清除多选
+      clearSelection: () => {
+        setSelectedRowKeys([]);
+        onRowSelect && onRowSelect([], []);
+      },
     }),
-    []
+    [pagiOptions]
   );
 
   return (
@@ -93,8 +97,18 @@ export default fixedForwardRef(function RTable<DataType>(
       dataSource={data}
       pagination={pagination ? pagiOptions : false}
       bordered={bordered}
+      scroll={{ scrollToFirstRowOnChange: true, ...scroll }}
       size={size}
       rowKey="id"
+      onRow={record => {
+        return {
+          onClick: event => onRowClick && onRowClick(record, event),
+          // onDoubleClick: event => {},
+          // onContextMenu: event => {},
+          // onMouseEnter: event => {},
+          // onMouseLeave: event => {},
+        };
+      }}
     ></Table>
   );
 });

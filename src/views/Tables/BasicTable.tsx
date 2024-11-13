@@ -123,6 +123,9 @@ const data: DataType[] = [
 
 export default function BasicTable() {
   const tableRef = useRef<RTableInstance>();
+  const onRowClick = (record: DataType) => {
+    console.log("row click:", record);
+  };
   const onRowSelect = (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
     console.log(`selectedRowKeys: ${selectedRowKeys}`, "selectedRows: ", selectedRows);
   };
@@ -133,7 +136,7 @@ export default function BasicTable() {
   return (
     <>
       <div className="mb10" style={{ display: "flex" }}>
-        <RButton className="mr10" onClick={tableRef.current?.clearSelection}>
+        <RButton className="mr10" onClick={() => tableRef.current?.clearSelection()}>
           Clear Selection
         </RButton>
         <RButton className="mr10" btn_type="warning" onClick={() => tableRef.current?.setPage(1)}>
@@ -149,6 +152,7 @@ export default function BasicTable() {
         data={data}
         total={data.length}
         rowSelect={true}
+        onRowClick={onRowClick}
         onRowSelect={onRowSelect}
         onPageChange={onPageChange}
       />
