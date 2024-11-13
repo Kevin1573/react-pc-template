@@ -4,18 +4,18 @@ import styles from "./index.module.scss";
 
 export default function NotPermissions() {
   const navigate = useNavigate();
-  const handleClick = () => {
-    navigate("/home");
-  };
+  const handleClick = () => navigate("/home");
+
   return (
     <div className={styles.container}>
       <Result
-        status="403"
+        className="pb150"
         title="403"
+        status="403"
         subTitle="抱歉，你当前没有权限访问此页面"
         extra={
           <Button type="primary" onClick={handleClick}>
-            Back Home
+            回到首页
           </Button>
         }
       />

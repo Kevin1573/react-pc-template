@@ -1,5 +1,5 @@
 /* 外边距、内边距全局样式 */
-@for $i from 1 through 35 {
+@for $i from 1 through 300 {
   .mg#{$i} {
     margin: #{$i}px !important;
   }

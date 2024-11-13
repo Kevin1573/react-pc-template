@@ -24,7 +24,7 @@ function getMenuItem(
   const icon = iconName ? <SvgIcon name={iconName} size="1.2em" /> : null;
   return { key, icon, children, label, type } as MenuItem;
 }
-function getMenuTree(tree: EmptyArrayType) {
+function getMenuTree(tree: AnyArrayType) {
   return tree.map(item => {
     // 如果存在子节点，则先递归处理子节点
     if (item.children && item.children.length > 0) {
@@ -61,9 +61,7 @@ export default function LayoutContent() {
       <Layout>
         <ReHeader menuTree={menuTree} collapsed={collapsed} onCollapse={handleCollapse} />
         <Content className={styles.content}>
-          <div className={styles.wrapper}>
-            <Outlet />
-          </div>
+          <Outlet />
         </Content>
       </Layout>
     </Layout>

@@ -1,14 +1,15 @@
-import styles from "./index.module.scss";
+import { Row, Col, Tooltip, Avatar, List } from "antd";
 import { QuestionCircleOutlined } from "@ant-design/icons";
-import { Tooltip, Avatar, List } from "antd";
-import BigColumn from "./charts/BigColumn";
-import FirstLine from "./charts/FirstLine";
-import FirstArea from "./charts/FirstArea";
-import FirstTiny from "./charts/FirstTiny";
-import FirstScatter from "./charts/FirstScatter";
+import BigColumn from "./components/BigColumn";
+import FirstLine from "./components/FirstLine";
+import FirstArea from "./components/FirstArea";
+import FirstTiny from "./components/FirstTiny";
+import FirstScatter from "./components/FirstScatter";
+import styles from "./index.module.scss";
 
 export default function Home() {
-  const data = [
+  // 列表数据
+  const listData = [
     {
       title: "Ant Design Title 1",
     },
@@ -28,68 +29,75 @@ export default function Home() {
       title: "Ant Design Title 6",
     },
   ];
+  // 栅栏间距
+  const gtrNum = 14;
 
   return (
-    <>
-      <div className={styles.container}>
-        <div className={styles.left}>
-          <div className={styles.left_bottom}>
-            {/* 卡片 */}
-            <div className={styles.cardContainer}>
-              <div className={styles.cardItem} style={{ justifyContent: "space-between" }}>
-                <p style={{ fontSize: 18, margin: 0, display: "flex", justifyContent: "space-between" }}>
-                  <span>访问量</span>
-                  <Tooltip placement="top" title="指示器提示">
-                    <QuestionCircleOutlined />
-                  </Tooltip>
-                </p>
-                <div style={{ height: 125, textAlign: "center" }}>
-                  <FirstLine></FirstLine>
-                </div>
-              </div>
-              <div className={styles.cardItem} style={{ justifyContent: "space-between" }}>
-                <p style={{ fontSize: 18, margin: 0, display: "flex", justifyContent: "space-between" }}>
-                  <span>销售额</span>
-                  <Tooltip placement="top" title="指示器提示">
-                    <QuestionCircleOutlined />
-                  </Tooltip>
-                </p>
-                <div style={{ height: 125, textAlign: "center" }}>
-                  <FirstArea></FirstArea>
-                </div>
-              </div>
-              <div className={styles.cardItem} style={{ justifyContent: "space-between" }}>
-                <p style={{ fontSize: 18, margin: 0, display: "flex", justifyContent: "space-between" }}>
-                  <span>进度</span>
-                  <Tooltip placement="top" title="指示器提示">
-                    <QuestionCircleOutlined />
-                  </Tooltip>
-                </p>
-                <div style={{ height: 125, textAlign: "center" }}>
-                  <FirstTiny></FirstTiny>
-                </div>
-              </div>
-              <div className={styles.cardItem} style={{ justifyContent: "space-between" }}>
-                <p style={{ fontSize: 18, margin: 0, display: "flex", justifyContent: "space-between" }}>
-                  <span>散点图</span>
-                  <Tooltip placement="top" title="指示器提示">
-                    <QuestionCircleOutlined />
-                  </Tooltip>
-                </p>
-                <div style={{ height: 125, textAlign: "center" }}>
-                  <FirstScatter></FirstScatter>
-                </div>
+    <Row gutter={[gtrNum, gtrNum]} className={styles.container}>
+      <Col xs={24} xl={16} xxl={19}>
+        <Row gutter={[gtrNum, gtrNum]} className={styles.card_container}>
+          <Col xs={24} sm={12} lg={6}>
+            <div className={styles.card_item}>
+              <p style={{ fontSize: 18, margin: 0, display: "flex", justifyContent: "space-between" }}>
+                <span>访问量</span>
+                <Tooltip placement="top" title="指示器提示">
+                  <QuestionCircleOutlined />
+                </Tooltip>
+              </p>
+              <div style={{ height: 125, textAlign: "center" }}>
+                <FirstLine />
               </div>
             </div>
-            <div id="columnChart" className={styles.columnChart}>
-              <BigColumn></BigColumn>
+          </Col>
+          <Col xs={24} sm={12} lg={6}>
+            <div className={styles.card_item}>
+              <p style={{ fontSize: 18, margin: 0, display: "flex", justifyContent: "space-between" }}>
+                <span>销售额</span>
+                <Tooltip placement="top" title="指示器提示">
+                  <QuestionCircleOutlined />
+                </Tooltip>
+              </p>
+              <div style={{ height: 125, textAlign: "center" }}>
+                <FirstArea />
+              </div>
             </div>
-          </div>
+          </Col>
+          <Col xs={24} sm={12} lg={6}>
+            <div className={styles.card_item}>
+              <p style={{ fontSize: 18, margin: 0, display: "flex", justifyContent: "space-between" }}>
+                <span>进度</span>
+                <Tooltip placement="top" title="指示器提示">
+                  <QuestionCircleOutlined />
+                </Tooltip>
+              </p>
+              <div style={{ height: 125, textAlign: "center" }}>
+                <FirstTiny />
+              </div>
+            </div>
+          </Col>
+          <Col xs={24} sm={12} lg={6}>
+            <div className={styles.card_item}>
+              <p style={{ fontSize: 18, margin: 0, display: "flex", justifyContent: "space-between" }}>
+                <span>散点图</span>
+                <Tooltip placement="top" title="指示器提示">
+                  <QuestionCircleOutlined />
+                </Tooltip>
+              </p>
+              <div style={{ height: 125, textAlign: "center" }}>
+                <FirstScatter />
+              </div>
+            </div>
+          </Col>
+        </Row>
+        <div className={`${styles.chart_container} mt${gtrNum}`}>
+          <BigColumn />
         </div>
-        <div className={styles.right}>
+      </Col>
+      <Col xs={24} xl={8} xxl={5}>
+        <div className={styles.list_container}>
           <List
             itemLayout="horizontal"
-            dataSource={data}
+            dataSource={listData}
             renderItem={(item, index) => (
               <List.Item>
                 <List.Item.Meta
@@ -101,7 +109,7 @@ export default function Home() {
             )}
           />
         </div>
-      </div>
-    </>
+      </Col>
+    </Row>
   );
 }

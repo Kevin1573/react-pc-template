@@ -64,7 +64,7 @@ export function formatErrMsg(err: any) {
 }
 
 // 删除对象中的空值
-export function deleteEmptyProperty(data: EmptyObjectType) {
+export function deleteEmptyProperty(data: AnyObjectType) {
   const cloneData = JSON.parse(JSON.stringify(data));
   Object.keys(data).forEach(key => {
     if (whoami(data[key]) === "String") cloneData[key] = cloneData[key].trim();
@@ -81,7 +81,7 @@ export function deleteEmptyProperty(data: EmptyObjectType) {
  * @param {*} rootId 根Id 默认从 data 中获取最小的 parent 值
  */
 export function constructTree(
-  data: EmptyArrayType,
+  data: AnyArrayType,
   orderNum: string = "order_num",
   parentId: string = "parent",
   rootId?: number
@@ -100,13 +100,13 @@ export function constructTree(
     });
     // 如果存在子级，则给它们排序并连接到父级的 children 属性上
     if (branchArr.length > 0) {
-      branchArr.sort((a: EmptyObjectType, b: EmptyObjectType) => a[orderNum] - b[orderNum]);
+      branchArr.sort((a: AnyObjectType, b: AnyObjectType) => a[orderNum] - b[orderNum]);
       father.children = branchArr;
     }
     // 返回树形结构数据的第一层
     return !father[parentId] || father[parentId] === rootId;
   });
   // 循环结束后，排序并返回树形结构数据
-  treeData.sort((a: EmptyObjectType, b: EmptyObjectType) => a[orderNum] - b[orderNum]);
+  treeData.sort((a: AnyObjectType, b: AnyObjectType) => a[orderNum] - b[orderNum]);
   return treeData.length > 0 ? treeData : data;
 }
