@@ -6,6 +6,7 @@ import { useRouteStore } from "@/store/route";
 import getSystemRoutes from "./router/index";
 import AuthRoutes from "./router/authRoutes";
 import AntdGlobal from "./utils/AntdGlobal";
+import zhCN from "antd/locale/zh_CN";
 import "@/styles/global.scss";
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
 
   return (
     <ConfigProvider
+      locale={zhCN}
       theme={{
         token: { colorPrimary: "#1677ff" },
         algorithm: isDark === "dark" ? theme.darkAlgorithm : theme.defaultAlgorithm,
