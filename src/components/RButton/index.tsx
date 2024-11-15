@@ -1,7 +1,7 @@
 import React from "react";
 import { Button, ConfigProvider, type ButtonProps } from "antd";
 
-type BtnType = "default" | "primary" | "success" | "warning" | "error" | "info";
+type BtnType = "default" | "primary" | "success" | "warning" | "error" | "blank" | "info";
 interface RButtonProps extends ButtonProps {
   btn_type?: BtnType;
   btn_variant?: "link" | "text" | "solid" | "dashed" | "outlined" | "filled";
@@ -13,11 +13,15 @@ const colorSchema: Record<BtnType, string> = {
   success: "#52c41a",
   warning: "#faad14",
   error: "#FF4D4F",
+  blank: "#D9D9D9",
   info: "#13C2C2",
 };
 
 const RButton = React.memo(({ btn_type = "primary", btn_variant = "solid", ...rest }: RButtonProps) => {
   switch (btn_type) {
+    case "blank":
+      // 原版空白样式的按钮，variant 对它无效
+      return <Button {...rest} />;
     case "default":
       // defalut 的颜色用 algorithm 算不准，所以使用原版样式
       return <Button color="default" variant={btn_variant} {...rest} />;
