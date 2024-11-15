@@ -1,4 +1,4 @@
-import { Button, Form, Input, type FormProps } from "antd";
+import { Form, Input, type FormProps } from "antd";
 import { HappyProvider } from "@ant-design/happy-work-theme";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useUserInfoStore } from "@/store/userInfo";
@@ -7,12 +7,12 @@ import { AdMessage } from "@/utils/AntdGlobal";
 import { formatErrMsg } from "@/utils/common";
 import { Local } from "@/utils/storage";
 import ThemeSwitch from "@/components/ThemeSwitch";
+import RButton from "@/components/RButton";
 import styles from "./index.module.scss";
 
 type FieldType = {
   username: string;
   password: string;
-  remember?: string;
 };
 
 export default function Login() {
@@ -57,35 +57,25 @@ export default function Login() {
         <h2>打开门户，尽情探索</h2>
         <div className={styles.container}>
           <Form
-            name="basic"
-            labelCol={{ span: 8 }}
-            wrapperCol={{ span: 16 }}
-            style={{ maxWidth: 600 }}
-            initialValues={{ username: "admin", password: "123456", remember: true }}
+            name="login"
+            labelCol={{ span: 6 }}
+            wrapperCol={{ span: 18 }}
+            style={{ width: "100%" }}
+            initialValues={{ username: "admin", password: "123456" }}
             onFinish={handleLogin}
             autoComplete="off"
           >
-            <Form.Item<FieldType>
-              label="用户名"
-              name="username"
-              rules={[{ required: true, message: "请输入用户名!" }]}
-            >
+            <Form.Item label="用户名" name="username" rules={[{ required: true, message: "请输入用户名!" }]}>
               <Input />
             </Form.Item>
-
-            <Form.Item<FieldType>
-              label="密码"
-              name="password"
-              rules={[{ required: true, message: "请输入密码！" }]}
-            >
+            <Form.Item label="密码" name="password" rules={[{ required: true, message: "请输入密码！" }]}>
               <Input.Password />
             </Form.Item>
-
-            <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+            <Form.Item wrapperCol={{ offset: 6, span: 18 }}>
               <HappyProvider>
-                <Button type="primary" htmlType="submit">
+                <RButton block htmlType="submit">
                   登录
-                </Button>
+                </RButton>
               </HappyProvider>
             </Form.Item>
           </Form>
