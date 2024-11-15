@@ -20,7 +20,7 @@ export default <PageRouteItem[]>[
     element: null,
     meta: {
       label: "表格",
-      icon: "TdesignTable",
+      icon: "TdesignGridView",
       isRouter: false,
     },
   },
@@ -33,6 +33,18 @@ export default <PageRouteItem[]>[
     meta: {
       label: "基础表格",
       icon: "TdesignTable1",
+      isRouter: true,
+    },
+  },
+  {
+    id: "/formtable",
+    parent: "sub1",
+    order_num: 2,
+    path: "/formtable",
+    element: "/Tables/FormTable",
+    meta: {
+      label: "完整表格",
+      icon: "TdesignTable",
       isRouter: true,
     },
   },
