@@ -2,6 +2,7 @@ import { useRef } from "react";
 import { Space, Tag, type TableProps } from "antd";
 import RButton from "@/components/RButton";
 import RTable, { RTableInstance } from "@/components/RTable";
+import data from "@/components/RTable/data";
 
 interface DataType {
   id: number;
@@ -58,66 +59,6 @@ const columns: TableProps<DataType>["columns"] = [
         <a>Delete</a>
       </Space>
     ),
-  },
-];
-
-// 表格数据
-const data: DataType[] = [
-  {
-    id: 1,
-    name: "John Brown",
-    age: 32,
-    address: "New York No. 1 Lake Park",
-    tags: ["nice", "developer"],
-  },
-  {
-    id: 2,
-    name: "Jim Green",
-    age: 42,
-    address: "London No. 1 Lake Park",
-    tags: ["loser"],
-  },
-  {
-    id: 3,
-    name: "Joe Black",
-    age: 32,
-    address: "Sydney No. 1 Lake Park",
-    tags: ["cool", "teacher"],
-  },
-  {
-    id: 4,
-    name: "Disabled User",
-    age: 58,
-    address: "Beijing No. 1 Lake Park",
-    tags: ["loser"],
-  },
-  {
-    id: 5,
-    name: "John Brown",
-    age: 32,
-    address: "New York No. 1 Lake Park",
-    tags: ["nice", "developer"],
-  },
-  {
-    id: 6,
-    name: "Jim Green",
-    age: 42,
-    address: "London No. 1 Lake Park",
-    tags: ["loser"],
-  },
-  {
-    id: 7,
-    name: "Joe Black",
-    age: 32,
-    address: "Sydney No. 1 Lake Park",
-    tags: ["cool", "teacher"],
-  },
-  {
-    id: 8,
-    name: "Disabled User",
-    age: 58,
-    address: "Beijing No. 1 Lake Park",
-    tags: ["loser"],
   },
 ];
 

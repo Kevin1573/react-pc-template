@@ -9,6 +9,10 @@ import AntdGlobal from "./utils/AntdGlobal";
 import zhCN from "antd/locale/zh_CN";
 import "@/styles/global.scss";
 
+import dayjs from "dayjs";
+import "dayjs/locale/zh-cn";
+dayjs.locale("zh-cn");
+
 function App() {
   // 订阅整个ThemeStore，无论store中的哪个部分发生变化，都会触发组件重新渲染
   // const { isDark, isLight } = useThemeStore();
