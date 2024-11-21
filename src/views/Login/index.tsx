@@ -2,7 +2,7 @@ import { Form, Input, type FormProps } from "antd";
 import { HappyProvider } from "@ant-design/happy-work-theme";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useUserInfoStore } from "@/store/userInfo";
-import { userLogin, getUserInfo } from "@/api/index";
+import { userLogin, getUserInfo } from "@/api";
 import { AdMessage } from "@/utils/AntdGlobal";
 import { formatErrMsg } from "@/utils/common";
 import { Local } from "@/utils/storage";

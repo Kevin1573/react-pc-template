@@ -13,7 +13,15 @@ import dayjs from "dayjs";
 import "dayjs/locale/zh-cn";
 dayjs.locale("zh-cn");
 
-function App() {
+// 路由配置组件
+function GetRoutes() {
+  const pageRoutes = useRouteStore(state => state.pageRoutes);
+  const systemRoutes = useMemo(() => getSystemRoutes(pageRoutes), [pageRoutes]);
+  const sysUseRoutes = useRoutes(systemRoutes);
+  return <AuthRoutes>{sysUseRoutes}</AuthRoutes>;
+}
+
+export default function App() {
   // 订阅整个ThemeStore，无论store中的哪个部分发生变化，都会触发组件重新渲染
   // const { isDark, isLight } = useThemeStore();
 
@@ -24,14 +32,6 @@ function App() {
 
   // 单独订阅isDark字段，只有当isDark发生变化时，组件才会重新渲染
   const isDark = useThemeStore(state => state.isDark);
-
-  // 路由配置组件
-  function GetRoutes() {
-    const pageRoutes = useRouteStore(state => state.pageRoutes);
-    const systemRoutes = useMemo(() => getSystemRoutes(pageRoutes), [pageRoutes]);
-    const sysUseRoutes = useRoutes(systemRoutes);
-    return <AuthRoutes>{sysUseRoutes}</AuthRoutes>;
-  }
 
   return (
     <ConfigProvider
@@ -50,5 +50,3 @@ function App() {
     </ConfigProvider>
   );
 }
-
-export default App;

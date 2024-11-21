@@ -52,16 +52,14 @@ function ThemeSwitch() {
   };
 
   return (
-    <>
-      <HappyProvider>
-        <Switch
-          checkedChildren={<MoonOutlined style={{ fontSize: "14px" }} />}
-          unCheckedChildren={<SunOutlined style={{ fontSize: "14px" }} />}
-          checked={isDark === "dark" ? true : false}
-          onChange={handleThemeChange}
-        />
-      </HappyProvider>
-    </>
+    <HappyProvider>
+      <Switch
+        checkedChildren={<MoonOutlined style={{ fontSize: "14px" }} />}
+        unCheckedChildren={<SunOutlined style={{ fontSize: "14px" }} />}
+        checked={isDark === "dark" ? true : false}
+        onChange={handleThemeChange}
+      />
+    </HappyProvider>
   );
 }
 

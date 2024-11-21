@@ -1,4 +1,5 @@
 import { useRef } from "react";
+import { useImmer } from "use-immer";
 import { Space, Tag, type TableProps } from "antd";
 import RButton from "@/components/RButton";
 import RTable, { RTableInstance } from "@/components/RTable";
@@ -61,17 +62,34 @@ const columns: TableProps<DataType>["columns"] = [
     ),
   },
 ];
+// 表格基础配置
+const config: TableConfig = {
+  page: 1,
+  limit: 5,
+  total: data.length,
+  loading: false,
+  bordered: true,
+  params: {},
+};
 
 export default function BasicTable() {
   const tableRef = useRef<RTableInstance>();
+  const [myConfig, setMyConfig] = useImmer<TableConfig>(config);
+
+  // 表格行点击
   const onRowClick = (record: DataType) => {
     console.log("row click:", record);
   };
+  // 表格多选
   const onRowSelect = (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
     console.log(`selectedRowKeys: ${selectedRowKeys}`, "selectedRows: ", selectedRows);
   };
+  // 分页切换
   const onPageChange = (page: number, pageSize: number) => {
-    console.log(`page: ${page}, pageSize: ${pageSize}`);
+    setMyConfig(draft => {
+      draft.page = page;
+      draft.limit = pageSize;
+    });
   };
 
   return (
@@ -90,9 +108,10 @@ export default function BasicTable() {
       <RTable<DataType>
         ref={tableRef}
         columns={columns}
+        config={myConfig}
         data={data}
-        total={data.length}
         rowSelect={true}
+        rowSelectType="checkbox"
         onRowClick={onRowClick}
         onRowSelect={onRowSelect}
         onPageChange={onPageChange}

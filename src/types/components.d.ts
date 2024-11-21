@@ -1,3 +1,16 @@
+/**
+ * src/components/RTable/index.tsx
+ * 表格基础配置
+ */
+declare type TableConfig = {
+  page: number;
+  limit: number;
+  total: number;
+  loading: boolean;
+  bordered: boolean;
+  params: AnyObjectType;
+};
+
 // 声明选择器的选项类型
 declare type SelectOption = {
   label: string;
@@ -73,7 +86,6 @@ declare type TableModals = {
     | "timeRange"
     | "datetimeRange"
     | "switch";
-  defaultValue?: any;
   isHiden?: boolean;
   span?: number;
   message?: string;

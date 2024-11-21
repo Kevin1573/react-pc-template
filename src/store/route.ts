@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { getBackendRoute } from "@/api/index";
+import { getBackendRoute } from "@/api";
 import { AdMessage } from "@/utils/AntdGlobal";
 import frontEndRoutes from "@/router/frontEnd"; // 引入前端静态路由
 

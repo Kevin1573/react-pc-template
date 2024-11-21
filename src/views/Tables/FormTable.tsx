@@ -1,10 +1,11 @@
 import { useRef } from "react";
+import { useImmer } from "use-immer";
 import { Space, Tag, type TableProps } from "antd";
 import { deleteEmptyProperty } from "@/utils/common";
 import RButton from "@/components/RButton";
 import RTable from "@/components/RTable";
-import RTableSearch from "@/components/RTable/tableSearch";
 import RTableModal, { type RTableModalInstance } from "@/components/RTable/tableModal";
+import RTableSearch, { type RTableSearchInstance } from "@/components/RTable/tableSearch";
 import data from "@/components/RTable/data";
 
 // 搜索表单配置
@@ -254,7 +255,6 @@ const options: TableModals[] = [
     placeholder: "请选择开或关",
     required: false,
     type: "switch",
-    defaultValue: true,
     checkedChildren: "开启",
     unCheckedChildren: "关闭",
   },
@@ -304,20 +304,57 @@ const columns: TableProps["columns"] = [
     ),
   },
 ];
+// 表格基础配置
+const config: TableConfig = {
+  page: 1,
+  limit: 15,
+  total: data.length,
+  loading: false,
+  bordered: true,
+  params: {},
+};
 
 export default function FormTable() {
   const modalRef = useRef<RTableModalInstance>();
+  const searchRef = useRef<RTableSearchInstance>();
+  const [myConfig, setMyConfig] = useImmer<TableConfig>(config);
+
+  // 条件搜索
   const onTableSearch = (values: AnyObjectType) => {
-    console.log("Received values of form: ", deleteEmptyProperty(values));
+    console.log("onTableSearch:", deleteEmptyProperty(values));
   };
+  // 表单提交
   const onTableSubmit = (values: AnyObjectType) => {
-    console.log("Received values of form: ", deleteEmptyProperty(values));
+    console.log("onTableSubmit: ", deleteEmptyProperty(values));
     modalRef.current?.closeModal();
+  };
+
+  // 监听表单字段值的变化，可以通过判断 changedValues.hasOwnProperty(xxx) 来单独监听某个字段
+  const onSearchChanges = (changedValues: AnyObjectType, allValues: AnyObjectType) => {
+    console.log("SearchTable changes: ", changedValues);
+    console.log("SearchTable allValues: ", allValues);
+  };
+  const onModalChanges = (changedValues: AnyObjectType, allValues: AnyObjectType) => {
+    console.log("ModalTable changes: ", changedValues);
+    console.log("ModalTable allValues: ", allValues);
+  };
+  // 分页切换
+  const onPageChange = (page: number, pageSize: number) => {
+    setMyConfig(draft => {
+      draft.page = page;
+      draft.limit = pageSize;
+    });
   };
 
   return (
     <>
-      <RTableSearch defaultExpand searchs={searchs} onSearch={onTableSearch}>
+      <RTableSearch
+        ref={searchRef}
+        defaultExpand
+        searchs={searchs}
+        onSearch={onTableSearch}
+        onValuesChange={onSearchChanges}
+      >
         <RButton btn_type="info" onClick={() => modalRef.current?.openModal("add")}>
           添加
         </RButton>
@@ -325,8 +362,14 @@ export default function FormTable() {
           编辑
         </RButton>
       </RTableSearch>
-      <RTable columns={columns} data={data} total={data.length} rowSelect={true} />
-      <RTableModal ref={modalRef} title="完整表格" options={options} onSubmit={onTableSubmit} />
+      <RTable columns={columns} config={myConfig} data={data} rowSelect={true} onPageChange={onPageChange} />
+      <RTableModal
+        ref={modalRef}
+        title="完整表格"
+        options={options}
+        onSubmit={onTableSubmit}
+        onValuesChange={onModalChanges}
+      />
     </>
   );
 }
