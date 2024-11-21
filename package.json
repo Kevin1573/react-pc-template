@@ -15,15 +15,17 @@
     "@ant-design/icons": "^4.8.3",
     "@types/lodash": "^4.17.13",
     "ahooks": "^3.8.1",
-    "antd": "^5.22.1",
+    "antd": "^5.22.2",
     "axios": "^1.7.7",
     "dayjs": "1.11.13",
+    "immer": "^10.1.1",
     "lodash": "^4.17.21",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.28.0",
     "sass": "^1.81.0",
     "surge": "^0.23.1",
+    "use-immer": "^0.10.0",
     "zustand": "^4.5.5"
   },
   "devDependencies": {
