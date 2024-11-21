@@ -11,6 +11,7 @@ import {
   TreeSelect,
   DatePicker,
   TimePicker,
+  type FormInstance,
 } from "antd";
 import { fixedForwardRef } from "@/utils/fixedForwardRef";
 
@@ -19,16 +20,19 @@ interface RTableModalProps<DataType = AnyObjectType> {
   width?: number | string;
   options: TableModals[];
   onSubmit: (values: DataType) => void;
+  onValuesChange?: (changedValues: AnyObjectType, allValues: DataType) => void;
 }
 
 export interface RTableModalInstance {
-  openModal: (type?: string) => void;
+  form: FormInstance;
+  resetForm: () => void;
+  openModal: (type?: string, data?: AnyObjectType) => void;
   closeModal: () => void;
 }
 
 // 表单文本匹配
 const typeMap: Record<string, AnyObjectType> = {
-  add: { title: "添加", okText: "确认", cancelText: "取消" },
+  add: { title: "新增", okText: "确认", cancelText: "取消" },
   edit: { title: "编辑", okText: "保存", cancelText: "取消" },
 };
 // 表单类型匹配
@@ -147,25 +151,20 @@ const switchFields = (item: TableModals) => {
         />
       );
     case "switch":
-      return (
-        <Switch
-          checkedChildren={item.checkedChildren}
-          unCheckedChildren={item.unCheckedChildren}
-          defaultChecked={Boolean(item.defaultValue)}
-        />
-      );
+      return <Switch checkedChildren={item.checkedChildren} unCheckedChildren={item.unCheckedChildren} />;
     default:
       return <div style={{ color: "#FF4D4F" }}>匹配不到对应的表单类型</div>;
   }
 };
 
 export default fixedForwardRef(function RTableModal<DataType>(
-  { title, width = 1000, options, onSubmit }: RTableModalProps<DataType>,
+  { title, width = 1000, options, onSubmit, onValuesChange }: RTableModalProps<DataType>,
   ref: any
 ) {
   const [form] = Form.useForm();
   const [type, setType] = useState("add");
   const [show, setShow] = useState(false);
+  const [initVals, setInitVals] = useState<AnyObjectType | undefined>();
 
   // 表单渲染函数
   const renderFields = useCallback(() => {
@@ -178,7 +177,6 @@ export default fixedForwardRef(function RTableModal<DataType>(
             name={item.prop}
             label={item.label}
             rules={[{ required: item.required, message: item.message || `${item.label}不能为空` }]}
-            initialValue={item.defaultValue || null}
           >
             {switchFields(item)}
           </Form.Item>
@@ -186,23 +184,29 @@ export default fixedForwardRef(function RTableModal<DataType>(
       );
     }
     return renderList;
-  }, []);
+  }, [options]);
 
   // 自定义暴露内容
   useImperativeHandle(
     ref,
     () => ({
+      // 表单实例
+      form: form,
+      // 重置表单
+      resetForm: () => form.resetFields(),
       // 打开弹窗表单
-      openModal: (type: string = "add") => {
+      openModal: (type: string = "add", data: AnyObjectType | undefined) => {
+        setInitVals(data);
         setType(type);
         setShow(true);
       },
       // 关闭弹窗表单
       closeModal: () => {
+        setInitVals(undefined);
         setShow(false);
       },
     }),
-    []
+    [form]
   );
 
   return (
@@ -224,7 +228,9 @@ export default fixedForwardRef(function RTableModal<DataType>(
           size="middle"
           form={form}
           clearOnDestroy
+          initialValues={initVals}
           onFinish={(values: DataType) => onSubmit(values)}
+          onValuesChange={onValuesChange}
         >
           {dom}
         </Form>

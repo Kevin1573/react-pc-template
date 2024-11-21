@@ -1,16 +1,17 @@
-import { useState, useImperativeHandle } from "react";
+import { useState, useEffect, useImperativeHandle } from "react";
+import { useImmer } from "use-immer";
 import { Table, type TableProps, type TablePaginationConfig } from "antd";
 import { fixedForwardRef } from "@/utils/fixedForwardRef";
 
 interface RTableProps<DataType = AnyObjectType> {
   columns: TableProps<DataType>["columns"];
+  config: TableConfig;
   data: DataType[];
-  total: number;
   size?: "large" | "middle" | "small";
   scroll?: TableProps<DataType>["scroll"];
-  bordered?: boolean;
   rowSelect?: boolean;
-  rowSelectionType?: "checkbox" | "radio";
+  rowSelectType?: "checkbox" | "radio";
+  expandable?: TableProps<DataType>["expandable"];
   pagination?: boolean;
   pageSimple?: boolean;
   onRowClick?: (record: DataType, event: React.MouseEvent<HTMLElement>) => void;
@@ -26,13 +27,13 @@ export interface RTableInstance {
 export default fixedForwardRef(function RTable<DataType>(
   {
     columns,
+    config,
     data,
-    total,
     size = "middle",
     scroll,
-    bordered = true,
     rowSelect = false,
-    rowSelectionType = "checkbox",
+    rowSelectType = "checkbox",
+    expandable,
     pagination = true,
     pageSimple = false,
     onRowClick,
@@ -44,7 +45,7 @@ export default fixedForwardRef(function RTable<DataType>(
   // 表格多选配置
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const rowSelection: TableProps<DataType>["rowSelection"] = {
-    type: rowSelectionType,
+    type: rowSelectType,
     selectedRowKeys: selectedRowKeys,
     onChange: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
       setSelectedRowKeys(selectedRowKeys);
@@ -53,21 +54,32 @@ export default fixedForwardRef(function RTable<DataType>(
   };
 
   // 表格分页配置
-  const [pagiOptions, setPagiOptions] = useState<TablePaginationConfig>({
+  const [pagiOptions, setPagiOptions] = useImmer<TablePaginationConfig>({
     size: "default",
     position: ["bottomRight"],
-    current: 1,
-    pageSize: 5,
+    total: config.total,
+    current: config.page,
+    pageSize: config.limit,
     simple: pageSimple && { readOnly: pageSimple },
     showQuickJumper: false,
     showSizeChanger: !pageSimple && true,
     pageSizeOptions: ["5", "15", "30", "50"],
-    showTotal: () => (pageSimple ? null : `共 ${total} 条数据`),
+    showTotal: total => (pageSimple ? null : `共 ${total} 条数据`),
     onChange: (page: number, pageSize: number) => {
-      setPagiOptions({ ...pagiOptions, current: page, pageSize: pageSize });
+      setPagiOptions(draft => {
+        draft.current = page;
+        draft.pageSize = pageSize;
+      });
       onPageChange && onPageChange(page, pageSize);
     },
   });
+  useEffect(() => {
+    setPagiOptions(draft => {
+      draft.total = config.total;
+      draft.current = config.page;
+      draft.pageSize = config.limit;
+    });
+  }, [config]);
 
   // 自定义暴露的内容
   useImperativeHandle(
@@ -75,10 +87,9 @@ export default fixedForwardRef(function RTable<DataType>(
     () => ({
       // 设置分页
       setPage: (page: number, pageSize?: number) => {
-        setPagiOptions({
-          ...pagiOptions,
-          current: page,
-          pageSize: pageSize ? pageSize : pagiOptions.pageSize,
+        setPagiOptions(draft => {
+          draft.current = page;
+          draft.pageSize = pageSize || pagiOptions.pageSize;
         });
       },
       // 清除多选
@@ -92,14 +103,16 @@ export default fixedForwardRef(function RTable<DataType>(
 
   return (
     <Table<DataType>
-      rowSelection={rowSelect ? rowSelection : undefined}
+      rowKey="id"
       columns={columns}
       dataSource={data}
+      expandable={expandable}
       pagination={pagination ? pagiOptions : false}
-      bordered={bordered}
+      rowSelection={rowSelect ? rowSelection : undefined}
+      bordered={config.bordered}
+      loading={config.loading}
       scroll={{ scrollToFirstRowOnChange: true, ...scroll }}
       size={size}
-      rowKey="id"
       onRow={record => {
         return {
           onClick: event => onRowClick && onRowClick(record, event),
@@ -109,6 +122,6 @@ export default fixedForwardRef(function RTable<DataType>(
           // onMouseLeave: event => {},
         };
       }}
-    ></Table>
+    />
   );
 });

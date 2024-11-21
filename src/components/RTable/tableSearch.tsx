@@ -1,5 +1,4 @@
-import { useState, useCallback } from "react";
-import { DownOutlined } from "@ant-design/icons";
+import { useState, useCallback, useImperativeHandle } from "react";
 import {
   Row,
   Col,
@@ -12,14 +11,23 @@ import {
   TreeSelect,
   DatePicker,
   TimePicker,
+  type FormInstance,
 } from "antd";
+import { DownOutlined } from "@ant-design/icons";
+import { fixedForwardRef } from "@/utils/fixedForwardRef";
 import RButton from "@/components/RButton";
 
 interface RTableSearchProps<DataType = AnyObjectType> {
   searchs: TableSearchs[];
   onSearch: (values: DataType) => void;
+  onValuesChange?: (changedValues: AnyObjectType, allValues: DataType) => void;
   children?: React.ReactNode;
   defaultExpand?: boolean;
+}
+
+export interface RTableSearchInstance {
+  form: FormInstance;
+  resetForm: () => void;
 }
 
 // 表单样式
@@ -156,12 +164,10 @@ const switchFields = (item: TableSearchs) => {
   }
 };
 
-export default function RTableSearch<DataType>({
-  searchs,
-  onSearch,
-  children,
-  defaultExpand = false,
-}: RTableSearchProps<DataType>) {
+export default fixedForwardRef(function RTableSearch<DataType>(
+  { searchs, onSearch, onValuesChange, children, defaultExpand = false }: RTableSearchProps<DataType>,
+  ref: any
+) {
   const [form] = Form.useForm();
   const [expand, setExpand] = useState(Boolean(defaultExpand));
   const needExpand = searchs.length > 4;
@@ -187,7 +193,25 @@ export default function RTableSearch<DataType>({
       );
     }
     return renderList;
-  }, [expand]);
+  }, [searchs, expand, needExpand]);
+
+  // 表单重置
+  const onRest = () => {
+    form.resetFields();
+    onSearch(form.getFieldsValue());
+  };
+
+  // 自定义暴露内容
+  useImperativeHandle(
+    ref,
+    () => ({
+      // 表单实例
+      form: form,
+      // 重置表单
+      resetForm: () => form.resetFields(),
+    }),
+    [form]
+  );
 
   return (
     <Form
@@ -196,6 +220,7 @@ export default function RTableSearch<DataType>({
       form={form}
       style={formStyle}
       onFinish={(values: DataType) => onSearch(values)}
+      onValuesChange={onValuesChange}
     >
       <Row gutter={16}>{renderFields()}</Row>
       <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -204,7 +229,7 @@ export default function RTableSearch<DataType>({
           <RButton btn_type="primary" htmlType="submit">
             搜索
           </RButton>
-          <RButton btn_type="blank" onClick={() => form.resetFields()}>
+          <RButton btn_type="blank" onClick={onRest}>
             重置
           </RButton>
           {needExpand && (
@@ -216,4 +241,4 @@ export default function RTableSearch<DataType>({
       </div>
     </Form>
   );
-}
+});
