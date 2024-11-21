@@ -49,6 +49,18 @@ export default <PageRouteItem[]>[
     },
   },
   {
+    id: "/usertable",
+    parent: "sub1",
+    order_num: 2,
+    path: "/usertable",
+    element: "/Tables/UserTable",
+    meta: {
+      label: "用户管理",
+      icon: "TdesignUserAvatar",
+      isRouter: true,
+    },
+  },
+  {
     id: "sub2",
     parent: null,
     order_num: 3,
