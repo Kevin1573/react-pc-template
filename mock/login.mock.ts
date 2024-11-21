@@ -21,19 +21,4 @@ export default defineMock([
       }
     },
   },
-  {
-    url: "/mock/userInfo",
-    delay: [50, 150],
-    method: ["GET"],
-    body: () => {
-      return resultSuccess(
-        {
-          id: 1,
-          avatar: null,
-          username: "Benson",
-        },
-        "用户信息获取成功"
-      );
-    },
-  },
 ]);

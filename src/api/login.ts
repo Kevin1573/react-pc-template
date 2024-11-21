@@ -9,8 +9,3 @@ type LoginRequestData = {
 export function userLogin(data: LoginRequestData): Promise<HttpResultType> {
   return request.post("/mock/login/", data);
 }
-
-// 获取用户信息
-export function getUserInfo(): Promise<HttpResultType> {
-  return request.get("/mock/userInfo/");
-}
