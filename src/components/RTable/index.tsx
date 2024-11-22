@@ -4,11 +4,13 @@ import { Table, type TableProps, type TablePaginationConfig } from "antd";
 import { fixedForwardRef } from "@/utils/fixedForwardRef";
 
 interface RTableProps<DataType = AnyObjectType> {
+  className?: string;
   columns: TableProps<DataType>["columns"];
   config: TableConfig;
   data: DataType[];
   size?: "large" | "middle" | "small";
-  scroll?: TableProps<DataType>["scroll"];
+  scrollX?: true | number | string;
+  exHeight?: number;
   rowSelect?: boolean;
   rowSelectType?: "checkbox" | "radio";
   expandable?: TableProps<DataType>["expandable"];
@@ -26,11 +28,13 @@ export interface RTableInstance {
 
 export default fixedForwardRef(function RTable<DataType>(
   {
+    className,
     columns,
     config,
     data,
     size = "middle",
-    scroll,
+    scrollX,
+    exHeight,
     rowSelect = false,
     rowSelectType = "checkbox",
     expandable,
@@ -104,6 +108,7 @@ export default fixedForwardRef(function RTable<DataType>(
   return (
     <Table<DataType>
       rowKey="id"
+      className={className}
       columns={columns}
       dataSource={data}
       expandable={expandable}
@@ -111,7 +116,11 @@ export default fixedForwardRef(function RTable<DataType>(
       rowSelection={rowSelect ? rowSelection : undefined}
       bordered={config.bordered}
       loading={config.loading}
-      scroll={{ scrollToFirstRowOnChange: true, ...scroll }}
+      scroll={{
+        scrollToFirstRowOnChange: true,
+        x: scrollX,
+        y: exHeight ? `calc(100vh - ${50 + 14 + 47 + 64 + exHeight}px)` : undefined,
+      }}
       size={size}
       onRow={record => {
         return {

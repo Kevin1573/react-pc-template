@@ -142,6 +142,7 @@ export default function UserTable() {
   const [tableModals, setTableModals] = useImmer<TableModals[]>(options);
   const [tableConfig, setTableConfig] = useImmer<TableConfig>(config);
   const [tableData, setTableData] = useState<DataType[]>([]);
+  const [searchHeight, setSearchHeight] = useState(0);
 
   // 获取字典数据
   const initDictData = async () => {
@@ -306,7 +307,12 @@ export default function UserTable() {
 
   return (
     <>
-      <RTableSearch<DataType> ref={searchRef} searchs={tableSearchs} onSearch={onTableSearch}>
+      <RTableSearch<DataType>
+        ref={searchRef}
+        searchs={tableSearchs}
+        onSearch={onTableSearch}
+        onHeightChange={(height: number) => setSearchHeight(height)}
+      >
         <RButton btn_type="info" onClick={() => modalRef.current?.openModal("add", { isAdmin: true })}>
           新增用户
         </RButton>
@@ -315,6 +321,7 @@ export default function UserTable() {
         columns={tableColumns}
         config={tableConfig}
         data={tableData}
+        exHeight={searchHeight}
         rowSelect={true}
         onPageChange={onPageChange}
       />
