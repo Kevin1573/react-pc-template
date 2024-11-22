@@ -1,4 +1,4 @@
-import { useState, useCallback, useImperativeHandle } from "react";
+import { useRef, useState, useCallback, useImperativeHandle, useEffect } from "react";
 import {
   Row,
   Col,
@@ -20,6 +20,7 @@ import RButton from "@/components/RButton";
 interface RTableSearchProps<DataType = AnyObjectType> {
   searchs: TableSearchs[];
   onSearch: (values: DataType) => void;
+  onHeightChange?: (height: number) => void;
   onValuesChange?: (changedValues: AnyObjectType, allValues: DataType) => void;
   children?: React.ReactNode;
   defaultExpand?: boolean;
@@ -27,6 +28,7 @@ interface RTableSearchProps<DataType = AnyObjectType> {
 
 export interface RTableSearchInstance {
   form: FormInstance;
+  element: HTMLFormElement | null;
   resetForm: () => void;
 }
 
@@ -165,9 +167,17 @@ const switchFields = (item: TableSearchs) => {
 };
 
 export default fixedForwardRef(function RTableSearch<DataType>(
-  { searchs, onSearch, onValuesChange, children, defaultExpand = false }: RTableSearchProps<DataType>,
+  {
+    searchs,
+    onSearch,
+    onHeightChange,
+    onValuesChange,
+    children,
+    defaultExpand = false,
+  }: RTableSearchProps<DataType>,
   ref: any
 ) {
+  const formRef = useRef<any>();
   const [form] = Form.useForm();
   const [expand, setExpand] = useState(Boolean(defaultExpand));
   const needExpand = searchs.length > 4;
@@ -201,22 +211,30 @@ export default fixedForwardRef(function RTableSearch<DataType>(
     onSearch(form.getFieldsValue());
   };
 
+  // 监听组件高度变化
+  useEffect(() => {
+    onHeightChange && onHeightChange(formRef.current?.nativeElement.offsetHeight);
+  }, [expand]);
+
   // 自定义暴露内容
   useImperativeHandle(
     ref,
     () => ({
       // 表单实例
       form: form,
+      // 表单元素
+      element: formRef.current?.nativeElement,
       // 重置表单
       resetForm: () => form.resetFields(),
     }),
-    [form]
+    [form, formRef]
   );
 
   return (
     <Form
       name="rtable_search"
       size="middle"
+      ref={formRef}
       form={form}
       style={formStyle}
       onFinish={(values: DataType) => onSearch(values)}
