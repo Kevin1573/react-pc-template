@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from "react";
 import { useImmer } from "use-immer";
-import { Space, Tag, type TableProps } from "antd";
+import { Space, Tag, Tooltip, type TableProps } from "antd";
 import { getUsers, getUserRoles } from "@/api";
 import { AdMessage, AdModal } from "@/utils/AntdGlobal";
 import { deleteEmptyProperty } from "@/utils/common";
@@ -258,6 +258,11 @@ export default function UserTable() {
       title: "地址",
       dataIndex: "address",
       ellipsis: true,
+      render: (_, { address }) => (
+        <Tooltip title={address}>
+          <span>{address}</span>
+        </Tooltip>
+      ),
     },
     {
       title: "角色权限",
