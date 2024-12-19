@@ -180,11 +180,25 @@ export default fixedForwardRef(function RTableSearch<DataType>(
   const formRef = useRef<any>();
   const [form] = Form.useForm();
   const [expand, setExpand] = useState(Boolean(defaultExpand));
-  const needExpand = searchs.length > 4;
+  const needExpand = searchs.filter(item => !item.isHiden).length > 4;
+
+  // 获取收起时的索引
+  const getShrinkIndex = useCallback(() => {
+    let count = 0;
+    let index = 0;
+    for (let i = 0; i < searchs.length; i++) {
+      if (!searchs[i].isHiden) count++;
+      if (count === 4) {
+        index = i;
+        break;
+      }
+    }
+    return index;
+  }, [searchs]);
 
   // 表单渲染函数
   const renderFields = useCallback(() => {
-    const renderCount = needExpand ? (expand ? searchs.length : 4) : searchs.length;
+    const renderCount = needExpand ? (expand ? searchs.length : getShrinkIndex() + 1) : searchs.length;
     const renderList = [];
     for (let i = 0; i < renderCount; i++) {
       const item = searchs[i];
@@ -203,7 +217,7 @@ export default fixedForwardRef(function RTableSearch<DataType>(
       );
     }
     return renderList;
-  }, [searchs, expand, needExpand]);
+  }, [searchs, expand, needExpand, getShrinkIndex]);
 
   // 表单重置
   const onRest = () => {
