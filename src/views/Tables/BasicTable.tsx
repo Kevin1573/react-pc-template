@@ -95,6 +95,9 @@ export default function BasicTable() {
   return (
     <>
       <div className="mb10" style={{ display: "flex" }}>
+        <div className="text bg-slate-500 mr-2 rounded p-1 px-4">
+          Custom Button
+        </div>
         <RButton className="mr10" onClick={() => tableRef.current?.clearSelection()}>
           Clear Selection
         </RButton>

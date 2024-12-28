@@ -7,6 +7,7 @@ import getSystemRoutes from "./router/index";
 import AuthRoutes from "./router/authRoutes";
 import AntdGlobal from "./utils/AntdGlobal";
 import zhCN from "antd/locale/zh_CN";
+import "@/styles/initStyle.css";
 import "@/styles/global.scss";
 
 import dayjs from "dayjs";
