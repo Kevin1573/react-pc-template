@@ -5,7 +5,7 @@ import "@/styles/theme.scss";
 import "virtual:svg-icons-register";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
-  <Watermark content="">
+  <Watermark content="react pc">
     <App />
   </Watermark>
 );

@@ -3,6 +3,7 @@
 
 import React from "react";
 
+// eslint-disable-next-line @typescript-eslint/ban-types
 type FixedForwardRef = <T, P = {}>(
   render: (props: P, ref: React.Ref<T>) => React.ReactElement | null
 ) => (props: P & React.RefAttributes<T>) => React.ReactElement | null;

@@ -8,6 +8,7 @@ let AdMessage: MessageInstance;
 let AdNotification: NotificationInstance;
 let AdModal: Omit<ModalStaticFunctions, "warn">;
 
+// eslint-disable-next-line react-refresh/only-export-components
 export default () => {
   const staticFunction = App.useApp();
   AdMessage = staticFunction.message;

@@ -1,7 +1,7 @@
 import axios, { type AxiosInstance } from "axios";
 import { AdMessage } from "@/utils/AntdGlobal";
 import { Local } from "@/utils/storage";
-import { formatErrMsg } from "@/utils/common";
+// import { formatErrMsg } from "@/utils/common";
 
 // 白名单，不需要 token 的接口
 const whiteList = ["/mock/login/"];
@@ -46,6 +46,7 @@ service.interceptors.response.use(
   // 在 2xx 范围内的状态码都会触发该函数
   async response => {
     const { config, data } = response;
+    console.log(config);
     // if (config.url !== "/api/token/refresh/" && data.code && data.code !== 200) {
     // 	if (data.msg && data.msg.code === "token_not_valid") {
     // 		const { refresh, msg } = await resetToken(); // token 过期，需要重新获取
