@@ -31,7 +31,7 @@ export default function Login() {
       if (res1.code !== 200) return AdMessage.error(formatErrMsg(res1.message));
       Local.set("token", res1.data.token);
       Local.set("refresh", res1.data.refresh);
-      const res2 = await getUserInfo();
+      const res2 = await getUserInfo({});
       if (res2.code !== 200) return AdMessage.error("用户信息获取失败");
       updateUserInfo(res2.data);
       Local.set("userInfo", res2.data);

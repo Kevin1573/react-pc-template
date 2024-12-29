@@ -61,6 +61,30 @@ export default <PageRouteItem[]>[
     },
   },
   {
+    id: "sub-demo",
+    parent: null,
+    order_num: 2,
+    path: null,
+    element: null,
+    meta: {
+      label: "转换",
+      icon: "TdesignGridView",
+      isRouter: false,
+    },
+  },
+  {
+    id: "/text_parse",
+    parent: "sub-demo",
+    order_num: 1,
+    path: "/text-parse",
+    element: "/TextParser/index",
+    meta: {
+      label: "文本转换",
+      icon: "TdesignTable1",
+      isRouter: true,
+    },
+  },
+  {
     id: "sub2",
     parent: null,
     order_num: 3,

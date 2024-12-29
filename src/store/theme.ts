@@ -1,7 +1,7 @@
 import { create } from "zustand";
 
 interface ThemeStore {
-  isDark: String;
+  isDark: string;
   updateTheme: (isDark: string) => void;
 }
 

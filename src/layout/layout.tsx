@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Outlet } from "react-router-dom";
 import { Layout, type MenuProps } from "antd";
 import { useRouteStore } from "@/store/route";
@@ -42,8 +42,11 @@ function getMenuTree(tree: AnyArrayType) {
 
 export default function LayoutContent() {
   const [collapsed, setCollapsed] = useState(false);
+  // const collapsedRef = useRef(false);
+
   const handleCollapse = (collapsed: boolean) => {
     setCollapsed(collapsed);
+    // collapsedRef.current = collapsed;
   };
 
   // 缓存菜单数据
@@ -52,8 +55,11 @@ export default function LayoutContent() {
 
   // 从缓存中提取用户信息
   const updateUserInfo = useUserInfoStore(state => state.updateUserInfo);
-  const userInfo = Local.get("userInfo");
-  if (userInfo) updateUserInfo(userInfo);
+  useEffect(()=>{
+    const userInfo = Local.get("userInfo");
+    if (userInfo) updateUserInfo(userInfo);
+  }, [updateUserInfo]);
+
 
   return (
     <Layout style={{ overflow: "hidden" }}>

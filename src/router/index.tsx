@@ -6,6 +6,7 @@ import LayoutContent from "@/layout/layout";
 import Login from "@/views/Login";
 
 // 获取 views 目录下的全部 .jsx .tsx 文件
+// eslint-disable-next-line @typescript-eslint/ban-types
 const viewsModules: Record<string, Function> = import.meta.glob("../views/**/*.{jsx,tsx}");
 
 // 根据 path 匹配文件，返回 import 函数

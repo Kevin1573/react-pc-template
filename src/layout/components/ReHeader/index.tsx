@@ -80,7 +80,7 @@ function handleLogout() {
 // 递归获取面包屑文本
 function extractLabels(obj: any, key: string) {
   // 初始化结果数组
-  var labels: any = [];
+  let labels: any = [];
   // 如果对象有标签信息 label，则将其添加到结果数组中
   if (obj.label) {
     labels.push({ title: obj.label });
@@ -100,6 +100,7 @@ function extractLabels(obj: any, key: string) {
 
 export default function ReHeader({ menuTree, collapsed, onCollapse }: ReHeaderProps) {
   const { pathname } = useLocation();
+  const [__collapsed] = useState(collapsed);
   const [breadcrumbs, setBreadcrumds] = useState([]);
 
   // 获取用户信息
@@ -113,7 +114,7 @@ export default function ReHeader({ menuTree, collapsed, onCollapse }: ReHeaderPr
   return (
     <Header className={styles.header}>
       <div style={{ display: "flex", alignItems: "center" }}>
-        {collapsed ? (
+        {__collapsed ? (
           <MenuUnfoldOutlined
             style={{ marginRight: "10px" }}
             onClick={() => {

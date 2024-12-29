@@ -24,9 +24,9 @@ export default function ReSider({ menuTree, collapsed, onCollapse }: ReSiderProp
 
   useEffect(() => {
     setDefaultKey(pathname);
-    let res = findParentNode(pathname, menuTree);
+    const res = findParentNode(pathname, menuTree);
     res ? setDefaultMenu([res.key]) : setDefaultMenu([]);
-  }, [pathname]);
+  }, [pathname, menuTree]);
 
   const changeRoutes = (e: any) => {
     setDefaultKey(e.key);

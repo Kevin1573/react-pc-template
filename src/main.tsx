@@ -3,9 +3,10 @@ import App from "./App.tsx";
 import { Watermark } from "antd";
 import "@/styles/theme.scss";
 import "virtual:svg-icons-register";
+import '@/utils/noWarnning.ts';
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
-  <Watermark content="react pc">
+  <Watermark content="">
     <App />
   </Watermark>
 );
