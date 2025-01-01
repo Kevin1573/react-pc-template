@@ -24,18 +24,18 @@ export default <PageRouteItem[]>[
       isRouter: true,
     },
   },
-  {
-    id: "/textparse",
-    parent: null,
-    order_num: 1,
-    path: "/textparse",
-    element: "/TextParser/index",
-    meta: {
-      label: "文本转换",
-      icon: "TdesignTable1",
-      isRouter: true,
-    },
-  },
+  // {
+  //   id: "/textparse",
+  //   parent: null,
+  //   order_num: 1,
+  //   path: "/textparse",
+  //   element: "/TextParser/index",
+  //   meta: {
+  //     label: "文本转换",
+  //     icon: "TdesignTable1",
+  //     isRouter: true,
+  //   },
+  // },
   {
     id: "sub1",
     parent: null,
@@ -100,23 +100,11 @@ export default <PageRouteItem[]>[
     id: "/text",
     parent: "transfer",
     order_num: 1,
-    path: "/text",
+    path: "/text-parse",
     element: "/TextParser/index",
     meta: {
       label: "文本转换",
       icon: "TdesignTable1",
-      isRouter: true,
-    },
-  },
-  {
-    id: "/error",
-    parent: "sub-demo/text_parse",
-    order_num: 1,
-    path: "/error3",
-    element: "/Error/403",
-    meta: {
-      label: "40311",
-      icon: "TdesignErrorCircle",
       isRouter: true,
     },
   },
@@ -146,6 +134,7 @@ export default <PageRouteItem[]>[
     order_num: 2,
     path: null,
     element: null,
+    type: "group",
     meta: { label: "租户管理", icon: "TdesignTable1", isRouter: false },
   },
   {
@@ -154,7 +143,7 @@ export default <PageRouteItem[]>[
     order_num: 1,
     path: "/system/tenant/list",
     element: "/System/Tenant/List/index",
-    meta: { label: "租户管理>租户列表", isRouter: true },
+    meta: { label: "租户列表", isRouter: true },
   },
   {
     id: "/403",

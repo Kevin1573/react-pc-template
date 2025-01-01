@@ -11,4 +11,5 @@ declare type PageRouteItem = {
   path: string | null;
   element: string | null;
   meta: PageRouteMeta;
+  type?: string
 };

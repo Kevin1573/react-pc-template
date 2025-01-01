@@ -41,6 +41,7 @@ const items: MenuItem[] = [
       {
         key: "sub3",
         label: "Submenu",
+        type: 'group',
         children: [
           { key: "7", label: "Option 7" },
           { key: "8", label: "Option 8" },
@@ -85,8 +86,8 @@ export default function BlankPage() {
       <Menu
         onClick={onClick}
         style={{ width: 256 }}
-        defaultSelectedKeys={["1"]}
-        defaultOpenKeys={["sub1"]}
+        defaultSelectedKeys={["7"]}
+        defaultOpenKeys={["sub2"]}
         mode="inline"
         items={items}
       />

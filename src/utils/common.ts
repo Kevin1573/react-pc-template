@@ -1,4 +1,7 @@
 import { cloneDeep } from "lodash";
+import type { MenuProps, ItemType } from "antd";
+
+type MenuItem = Required<MenuProps>["items"][number];
 
 // 格式化金额
 export function formatNum(num: number | string) {
@@ -36,6 +39,43 @@ export function findParentNode(key: any, menus: any) {
     } else if (item.key === key) {
       return item;
     }
+  }
+  return null; // 如果没有找到匹配项，返回 null
+}
+
+export function findParentNodev2(key: any, menus: ItemType[]): ItemType | null {
+  for (const item of menus) {
+      if (item.children) {
+          // 检查当前节点的子节点中是否有目标键值
+          const childMatch = item.children.find((child: any) => child.key === key);
+          if (childMatch) {
+              // 若当前找到的父节点type为'group'，则继续查找其父节点
+              if (item.type === 'group') {
+                  let grandParent: MenuItem | null = null;  // 显式指定类型
+                  grandParent = findParentNodev2(item.key, menus);
+                  if (grandParent) {
+                      return grandParent;
+                  }
+              }
+              return item; // 返回当前节点，即父节点
+          } else {
+              // 递归搜索当前节点的子节点
+              const parent  = findParentNodev2(key, item.children);
+              if (parent) {
+                  // 若递归找到的父节点type为'group'，则继续查找其父节点
+                  if (parent.type === 'group') {
+                      let grandParent: MenuItem | null = null;  // 显式指定类型
+                      grandParent = findParentNodev2(parent.key, menus);
+                      if (grandParent) {
+                          return grandParent;
+                      }
+                  }
+                  return parent; // 返回当前节点，即父节点
+              }
+          }
+      } else if (item.key === key) {
+          return item;
+      }
   }
   return null; // 如果没有找到匹配项，返回 null
 }
