@@ -17,26 +17,38 @@ interface ReSiderProps {
 export default function ReSider({ menuTree, collapsed, onCollapse }: ReSiderProps) {
   const navigate = useNavigate();
 
+  console.log('system', menuTree);
+
   const isDark = useThemeStore(state => state.isDark);
   const { pathname } = useLocation();
-  const [defaultKey, setDefaultKey] = useState("/home");
+  const [defaultKey, setDefaultKey] = useState(["/home"]);
   const [defaultMenu, setDefaultMenu] = useState<string[]>([]);
 
   useEffect(() => {
-    setDefaultKey(pathname);
+    setDefaultKey([pathname]);
     const res = findParentNode(pathname, menuTree);
     res ? setDefaultMenu([res.key]) : setDefaultMenu([]);
+    console.log('useEffect', defaultMenu);
+
   }, [pathname, menuTree]);
 
   const changeRoutes = (e: any) => {
-    setDefaultKey(e.key);
+    // setDefaultKey(e.key);
+    setDefaultKey(e.keyPath);
+    console.log('change routes', e);
+
     navigate(e.key);
   };
 
   const openChange = (keys: string[]) => {
+    console.log('openChange', 'keys=',keys);
+
     if (keys.length) {
-      setDefaultMenu(keys.slice(keys.length - 1));
-    } else {
+      // setDefaultMenu(["systemManagers"]);
+      //setDefaultMenu(keys.slice(keys.length - 1));
+      setDefaultMenu(keys)
+    }
+    else {
       setDefaultMenu([]);
     }
   };
@@ -58,10 +70,11 @@ export default function ReSider({ menuTree, collapsed, onCollapse }: ReSiderProp
         <SvgIcon name="logo" size="1.1em" />
         {!collapsed ? <span className="ml6">React PC Template</span> : null}
       </div>
+      <div className="bg-white">{JSON.stringify(defaultMenu)}</div>
       <Menu
         theme={isDark === "dark" ? "dark" : "light"}
         mode="inline"
-        selectedKeys={[defaultKey]}
+        selectedKeys={defaultKey}
         openKeys={defaultMenu}
         style={{ height: "100%" }}
         items={menuTree}

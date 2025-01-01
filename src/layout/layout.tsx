@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo,  useState } from "react";
 import { Outlet } from "react-router-dom";
 import { Layout, type MenuProps } from "antd";
 import { useRouteStore } from "@/store/route";
@@ -7,7 +7,7 @@ import { constructTree } from "@/utils/common";
 import { Local } from "@/utils/storage";
 import SvgIcon from "@/components/SvgIcon";
 import ReHeader from "./components/ReHeader";
-import ReSider from "./components/ReSider";
+import ReSiderv2 from "./components/ReSiderv2";
 import styles from "./layout.module.scss";
 
 const { Content } = Layout;
@@ -51,7 +51,13 @@ export default function LayoutContent() {
 
   // 缓存菜单数据
   const pageRoutes = useRouteStore(state => state.pageRoutes);
-  const menuTree = useMemo(() => getMenuTree(constructTree(pageRoutes)), [pageRoutes]);
+  const menuTree = useMemo(() => {
+    const nodes = constructTree(pageRoutes);
+    console.log('construct tree nodes', nodes);
+
+    const treeNode = getMenuTree(nodes);
+    return treeNode;
+  }, [pageRoutes]);
 
   // 从缓存中提取用户信息
   const updateUserInfo = useUserInfoStore(state => state.updateUserInfo);
@@ -63,7 +69,7 @@ export default function LayoutContent() {
 
   return (
     <Layout style={{ overflow: "hidden" }}>
-      <ReSider menuTree={menuTree} collapsed={collapsed} onCollapse={handleCollapse} />
+      <ReSiderv2 menuTree={menuTree} collapsed={collapsed} onCollapse={handleCollapse} />
       <Layout>
         <ReHeader menuTree={menuTree} collapsed={collapsed} onCollapse={handleCollapse} />
         <Content className={styles.content}>

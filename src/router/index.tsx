@@ -29,7 +29,11 @@ const transformRoutes = (routes: PageRouteItem[]) => {
     .filter(item => item.meta.isRouter)
     .map(item => {
       const { path, element } = item;
+      console.log(item, path, element);
+
       const importFunc = dynamicImport(element as string);
+      console.log(importFunc);
+
       return {
         path: path as string,
         element: importFunc ? lazyLoader(React.lazy(importFunc as any)) : <Navigate to="/404"></Navigate>,
