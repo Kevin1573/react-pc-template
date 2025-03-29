@@ -1,0 +1,27 @@
+.jsonContainer {
+  white-space: pre-wrap;
+  font-family: 'Courier New', Courier, monospace;
+  color: #333;
+  .key {
+    color: #007bff;
+  }
+  .string {
+    color: #28a745;
+  }
+  .number {
+    color: #dc3545;
+  }
+  .boolean {
+    color: #ffc107;
+  }
+  .null {
+    color: #6c757d;
+  }
+}
+.diffContainer {
+  max-height: 500px;
+  overflow-y: auto;
+}
+.diff-view {
+  font-family: 'Courier New', Courier, monospace;
+}

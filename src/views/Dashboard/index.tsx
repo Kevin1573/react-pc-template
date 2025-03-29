@@ -1,5 +1,5 @@
-import { Card, Row, Col, Table, Modal } from 'antd';
-import type { TableColumnsType, TableProps } from 'antd';
+import { Card, Row, Col, Table, Modal, Spin } from 'antd';
+import type { TableColumnsType } from 'antd';
 import React, { useState, useEffect, useMemo } from 'react';
 import request from '@/utils/request'; // 引入 request 工具类
 
@@ -15,92 +15,25 @@ interface ApiLogType {
   createTime: string;
 }
 
-interface MetricSummary {
-  successNumber: number;
-  failedNumber: number;
-  totalNumber: number;
-}
-
 interface ApiSummaryData {
   totalSuccessNumber: number;
   totalFailedNumber: number;
   totalNumber: number;
 }
 
-// 自定义组件，用于展示长文本并点击弹出模态框
-const LongTextDisplay: React.FC<{ text: string }> = ({ text }) => {
-  const [visible, setVisible] = useState(false);
+// 新增接口定义成功调用详细记录类型
+interface SuccessCallLogType {
+  id: string;
+  key: string;
+  url: string;
+  method: string;
+  request: string;
+  headers: { [key: string]: string };
+  response: string;
+  statusCode: number;
+  responseTime: string;
+}
 
-  const showModal = () => {
-    setVisible(true);
-  };
-
-  const handleOk = () => {
-    setVisible(false);
-  };
-
-  const handleCancel = () => {
-    setVisible(false);
-  };
-
-  return (
-    <>
-      <span onClick={showModal} style={{ cursor: 'pointer', textDecoration: 'underline' }}>
-        {text.length > 20 ? `${text.slice(0, 20)}...` : text}
-      </span>
-      <Modal
-        title="详细内容"
-        open={visible}
-        onOk={handleOk}
-        onCancel={handleCancel}
-      >
-        <pre>{text}</pre>
-      </Modal>
-    </>
-  );
-};
-
-const apiLogColumns: TableColumnsType<ApiLogType> = [
-  {
-    title: 'ID',
-    dataIndex: 'id',
-    width: '15%',
-  },
-  {
-    title: 'URL',
-    dataIndex: 'url',
-    width: '20%',
-  },
-  {
-    title: '成功次数',
-    dataIndex: 'successNumber',
-    width: '15%',
-  },
-  {
-    title: '失败次数',
-    dataIndex: 'failedNumber',
-    width: '15%',
-  },
-  {
-    title: '总次数',
-    dataIndex: 'totalNumber',
-    width: '15%',
-  },
-  {
-    title: '名称',
-    dataIndex: 'name',
-    width: '15%',
-  },
-  {
-    title: '创建时间',
-    dataIndex: 'createTime',
-    width: '20%',
-  },
-];
-
-const onChange: TableProps<ApiLogType>['onChange'] = (pagination, filters, sorter, extra) => {
-  console.log('params', pagination, filters, sorter, extra);
-};
 
 export default function Dashboard() {
   const [metriciData, setMetriciData] = useState({
@@ -123,6 +56,14 @@ export default function Dashboard() {
     pagination.pageSize,
     pagination.total,
   ]);
+
+  // 新增状态管理成功详细调用记录
+  const [successCallLogs, setSuccessCallLogs] = useState<SuccessCallLogType[]>([]);
+  // 新增状态管理模态框显示隐藏
+  const [isSuccessModalVisible, setIsSuccessModalVisible] = useState(false);
+  // 新增状态管理加载状态
+  const [isLoadingSuccessLogs, setIsLoadingSuccessLogs] = useState(false);
+
   const fetchData = async () => {
     try {
       // 获取 API 调用统计数据
@@ -141,7 +82,7 @@ export default function Dashboard() {
           pageSize: pagination.pageSize,
         },
       }) as {
-        _embedded: { myDocumentList: ApiLogType[] };
+        _embedded: { apiCallSummaryList: ApiLogType[] };
         page: {
           totalElements: number;
           size: number;
@@ -150,8 +91,9 @@ export default function Dashboard() {
       };
 
       // 适配新的接口返回格式
-      const logsData = logsResponse._embedded.myDocumentList as ApiLogType[];
+      const logsData = logsResponse._embedded.apiCallSummaryList as ApiLogType[];
       const total = logsResponse.page.totalElements;
+
       setApiLogs(logsData);
       setPagination({
         ...pagination,
@@ -163,6 +105,7 @@ export default function Dashboard() {
       console.error('获取数据时出错:', error);
     }
   };
+
   useEffect(() => {
     const fetchDataAsync = async () => {
       console.log('stablePagination changed:', stablePagination);
@@ -171,7 +114,7 @@ export default function Dashboard() {
     fetchDataAsync();
   }, [stablePagination]);
 
-  const onTableChange = (newPagination: any, filters: any, sorter: any) => {
+  const onTableChange = (newPagination: any) => {
     // 检查新的分页信息是否和当前的分页信息不同
     if (
       newPagination.current !== stablePagination.current ||
@@ -181,6 +124,75 @@ export default function Dashboard() {
     }
   };
 
+
+  const handleShowSuccessModal = async (record: ApiLogType) => {
+    setIsLoadingSuccessLogs(true);
+    try {
+      const response = await request.get('/v1/apiCall/findAll', {
+        // 可根据实际情况传递筛选参数，比如根据 record 中的信息筛选成功记录
+        params: {
+          // 示例参数，可根据实际调整
+          // 假设根据 URL 筛选成功记录
+          url: record.url,
+          success: true,
+        },
+      });
+      const data = response as unknown as SuccessCallLogType[];
+      setSuccessCallLogs(data);
+      setIsSuccessModalVisible(true);
+    } catch (error) {
+      console.error('获取成功详细调用记录时出错:', error);
+    } finally {
+      setIsLoadingSuccessLogs(false);
+    }
+  };
+
+  const handleCloseSuccessModal = () => {
+    setIsSuccessModalVisible(false);
+  };
+
+  const apiLogColumns: TableColumnsType<ApiLogType> = [
+    {
+      title: 'ID',
+      dataIndex: 'id',
+      width: '15%',
+    },
+    {
+      title: 'URL',
+      dataIndex: 'url',
+      width: '20%',
+    },
+    {
+      title: '成功次数',
+      dataIndex: 'successNumber',
+      width: '15%',
+      render: (text, record) => (
+        <span style={{ cursor: 'pointer' }} onClick={() => handleShowSuccessModal(record)}>
+          {text}
+        </span>
+      ),
+    },
+    {
+      title: '失败次数',
+      dataIndex: 'failedNumber',
+      width: '15%',
+    },
+    {
+      title: '总次数',
+      dataIndex: 'totalNumber',
+      width: '15%',
+    },
+    {
+      title: '名称',
+      dataIndex: 'name',
+      width: '15%',
+    },
+    {
+      title: '创建时间',
+      dataIndex: 'createTime',
+      width: '20%',
+    },
+  ];
   return (
     <>
       <Row gutter={16} style={{ marginTop: '30px' }}>
@@ -213,6 +225,65 @@ export default function Dashboard() {
           </Card>
         </Col>
       </Row>
+      <Modal
+        title="成功详细调用记录"
+        open={isSuccessModalVisible}
+        onCancel={handleCloseSuccessModal}
+        width="90%"
+      >
+        {isLoadingSuccessLogs ? (
+          <Spin />
+        ) : (
+          <Table
+            dataSource={successCallLogs}
+            columns={[
+              {
+                title: 'ID',
+                dataIndex: 'id',
+                key: 'id',
+              },
+              {
+                title: 'URL',
+                dataIndex: 'url',
+                key: 'url',
+              },
+              {
+                title: '请求方法',
+                dataIndex: 'method',
+                key: 'method',
+              },
+              {
+                title: '请求体',
+                dataIndex: 'request',
+                key: 'request',
+                render: (text) => <pre>{text}</pre>
+              },
+              {
+                title: '请求头',
+                dataIndex: 'headers',
+                key: 'headers',
+                render: (headers) => <pre>{JSON.stringify(headers, null, 2)}</pre>
+              },
+              {
+                title: '响应体',
+                dataIndex: 'response',
+                key: 'response',
+                render: (text) => <pre>{text}</pre>
+              },
+              {
+                title: '状态码',
+                dataIndex: 'statusCode',
+                key: 'statusCode',
+              },
+              {
+                title: '响应时间',
+                dataIndex: 'responseTime',
+                key: 'responseTime',
+              },
+            ]}
+          />
+        )}
+      </Modal>
     </>
   );
 }
