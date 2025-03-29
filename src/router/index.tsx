@@ -4,6 +4,7 @@ import { lazyLoader } from "./lazyLoader";
 import { cloneDeep } from "lodash";
 import LayoutContent from "@/layout/layout";
 import Login from "@/views/Login";
+import Dashboard from "@/views/Dashboard";
 
 // 获取 views 目录下的全部 .jsx .tsx 文件
 // eslint-disable-next-line @typescript-eslint/ban-types
@@ -49,6 +50,10 @@ export default function getSystemRoutes(pageRoutes: PageRouteItem[]) {
     {
       path: "/login",
       element: <Login />,
+    },
+    {
+      path: "/dashboard",
+      element: <Dashboard />
     },
     {
       element: <LayoutContent />,
