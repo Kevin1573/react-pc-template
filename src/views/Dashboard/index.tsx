@@ -127,21 +127,51 @@ export default function Dashboard() {
     // 可以添加更多日志项
   ];
 
+  // 添加状态来记录当前的筛选条件
+  const [filterType, setFilterType] = useState('total');
+
+  // 根据筛选条件过滤数据
+  const filteredApiLogs = () => {
+    if (filterType === 'success') {
+      return apiLogs.filter(log => log.responseCode >= 200 && log.responseCode < 300);
+    } else if (filterType === 'failed') {
+      return apiLogs.filter(log => log.responseCode < 200 || log.responseCode >= 300);
+    }
+    return apiLogs;
+  };
+
+  // 处理 Card 点击事件
+  const handleCardClick = (type: string) => {
+    setFilterType(type);
+  };
+
   return (
     <>
       <Row gutter={16} style={{ marginTop: '30px' }}>
         <Col span={8}>
-          <Card title="API 调用成功次数">
+          <Card
+            title="API 调用成功次数"
+            onClick={() => handleCardClick('success')}
+            style={{ cursor: 'pointer' }}
+          >
             <p style={{ fontSize: '24px', textAlign: 'center' }}>{metriciData.successNumber}</p>
           </Card>
         </Col>
         <Col span={8}>
-          <Card title="API 调用失败次数">
+          <Card
+            title="API 调用失败次数"
+            onClick={() => handleCardClick('failed')}
+            style={{ cursor: 'pointer' }}
+          >
             <p style={{ fontSize: '24px', textAlign: 'center' }}>{metriciData.failedNumber}</p>
           </Card>
         </Col>
         <Col span={8}>
-          <Card title="API 调用总次数">
+          <Card
+            title="API 调用总次数"
+            onClick={() => handleCardClick('total')}
+            style={{ cursor: 'pointer' }}
+          >
             <p style={{ fontSize: '24px', textAlign: 'center' }}>{metriciData.totalNumber}</p>
           </Card>
         </Col>
@@ -149,7 +179,7 @@ export default function Dashboard() {
       <Row style={{ marginTop: '30px' }}>
         <Col span={24}>
           <Card title="API 日志列表">
-            <Table<ApiLogType> columns={apiLogColumns} dataSource={apiLogs} onChange={onChange} />
+            <Table<ApiLogType> columns={apiLogColumns} dataSource={filteredApiLogs()} onChange={onChange} />
           </Card>
         </Col>
       </Row>
