@@ -11,15 +11,22 @@ interface JsonComparatorProps {
 
 
 const JsonComparator: React.FC<JsonComparatorProps> = ({ blueJson, greenJson }) => {
-  // const formattedBlueJson = JSON.stringify(blueJson, null, 2);
-  // const formattedGreenJson = JSON.stringify(greenJson, null, 2);
+  // 判断下如果bluejson和greenjson都是字符串的话，需要先解析成对象在比较
+  if (typeof blueJson === 'string') {
+    blueJson = JSON.parse(blueJson);
+  }
+  if (typeof greenJson === 'string') {
+    greenJson = JSON.parse(greenJson);
+  }
 
+  console.log('blueJson', blueJson);
+  console.log('greenJson', greenJson);
   return (
     <Row gutter={16}>
       <Col span={24}>
         <Card title="JSON 比较结果">
           <div className={styles.diffContainer}>
-          <ReactJsonViewCompare oldData={blueJson} newData={greenJson} />
+            <ReactJsonViewCompare oldData={blueJson} newData={greenJson} />
           </div>
         </Card>
       </Col>
