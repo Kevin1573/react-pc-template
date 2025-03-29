@@ -2,6 +2,7 @@ import { Card, Row, Col, Table, Modal, Spin } from 'antd';
 import type { TableColumnsType } from 'antd';
 import React, { useState, useEffect, useMemo } from 'react';
 import request from '@/utils/request'; // 引入 request 工具类
+import JsonComparator from '@/components/JsonComparator';
 
 // 修改 ApiLogType 接口以匹配新的数据结构
 interface ApiLogType {
@@ -63,6 +64,8 @@ export default function Dashboard() {
   const [isSuccessModalVisible, setIsSuccessModalVisible] = useState(false);
   // 新增状态管理加载状态
   const [isLoadingSuccessLogs, setIsLoadingSuccessLogs] = useState(false);
+  const [isJsonComparatorVisible, setIsJsonComparatorVisible] = useState(false);
+  const [compareDate, setCompareDate] = useState<any[]>([]);
 
   const fetchData = async () => {
     try {
@@ -233,7 +236,7 @@ export default function Dashboard() {
       >
         {isLoadingSuccessLogs ? (
           <Spin />
-        ) : (
+        ) : (<>
           <Table
             dataSource={successCallLogs}
             columns={[
@@ -282,6 +285,69 @@ export default function Dashboard() {
               },
             ]}
           />
+          {/* 新增单选框组 */}
+          <div style={{ margin: '16px 0' }}>
+            <input
+              type="radio"
+              id="requestPayload"
+              name="comparisonOption"
+              value="request"
+            />
+            <label htmlFor="requestPayload">Request Payload</label>
+            <input
+              type="radio"
+              id="headers"
+              name="comparisonOption"
+              value="headers"
+            />
+            <label htmlFor="headers">Headers</label>
+            <input
+              type="radio"
+              id="responsePayload"
+              name="comparisonOption"
+              value="response"
+            />
+            <label htmlFor="responsePayload">Response Payload</label>
+          </div>
+          {/* 新增比较按钮 */}
+          <button
+            onClick={() => {
+              const selectedOption = document.querySelector(
+                'input[name="comparisonOption"]:checked'
+              ) as HTMLInputElement;
+              if (selectedOption) {
+                const selectedValue = selectedOption.value;
+                let dataToCompare: any[] = [];
+                switch (selectedValue) {
+                  case 'request':
+                    dataToCompare = successCallLogs.map(log => log.request);
+                    break;
+                  case 'headers':
+                    dataToCompare = successCallLogs.map(log => log.headers);
+                    break;
+                  case 'response':
+                    dataToCompare = successCallLogs.map(log => log.response);
+                    break;
+                  default:
+                    break;
+                }
+                console.log('Data to compare:', dataToCompare);
+                setCompareDate(dataToCompare );
+                // 点击按钮后显示 JsonComparator 组件
+                setIsJsonComparatorVisible(true);
+              }
+            }}
+          >
+            比较选中的数据
+          </button>
+          {/* 根据状态控制 JsonComparator 组件的显示与隐藏 */}
+          {isJsonComparatorVisible && (
+            <JsonComparator
+              blueJson={compareDate[0]}
+              greenJson={compareDate[1]}
+            />
+          )}
+        </>
         )}
       </Modal>
     </>
