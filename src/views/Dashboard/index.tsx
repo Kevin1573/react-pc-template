@@ -1,4 +1,4 @@
-import { Card, Row, Col, Table, Modal, Spin, Radio } from 'antd';
+import { Card, Row, Col, Table, Modal, Spin, Radio, Button, Space } from 'antd';
 import type { TableColumnsType } from 'antd';
 import React, { useState, useEffect, useMemo } from 'react';
 import request from '@/utils/request';
@@ -129,6 +129,7 @@ const ApiLogTable = ({
     </Row>
   );
 };
+
 // 成功调用详细记录模态框组件
 const SuccessCallModal = ({
   isSuccessModalVisible,
@@ -174,6 +175,7 @@ const SuccessCallModal = ({
       open={isSuccessModalVisible}
       onCancel={handleCloseSuccessModal}
       width="90%"
+      footer={null}
     >
       {isLoadingSuccessLogs ? (
         <Spin />
@@ -226,23 +228,26 @@ const SuccessCallModal = ({
                 key: 'responseTime'
               }
             ]}
+            pagination={false}
           />
           <div style={{ margin: '16px 0' }}>
             {/* 使用 Ant Design 的 Radio.Group 和 Radio.Button 组件 */}
-            <Radio.Group onChange={(e) => handleRadioChange({ target: { value: e.target.value } } as React.ChangeEvent<HTMLInputElement>)}
-              defaultValue="response">
+            <Radio.Group onChange={(e) => handleRadioChange({ target: { value: e.target.value } } as React.ChangeEvent<HTMLInputElement>)}>
               <Radio.Button value="request">Request Payload</Radio.Button>
               <Radio.Button value="headers">Headers</Radio.Button>
               <Radio.Button value="response">Response Payload</Radio.Button>
             </Radio.Group>
+            <Space size="middle" style={{ marginLeft: 10 }}>
+              <Button
+                onClick={() => {
+                  setIsJsonComparatorVisible(true);
+                }}
+              >
+                比较选中的数据
+              </Button>
+            </Space>
           </div>
-          <button
-            onClick={() => {
-              setIsJsonComparatorVisible(true);
-            }}
-          >
-            比较选中的数据
-          </button>
+
           {isJsonComparatorVisible && compareDate.length >= 2 && (
             <JsonComparator blueJson={compareDate[0]} greenJson={compareDate[1]} />
           )}
