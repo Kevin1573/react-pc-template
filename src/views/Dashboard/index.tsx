@@ -292,31 +292,8 @@ export default function Dashboard() {
               id="requestPayload"
               name="comparisonOption"
               value="request"
-            />
-            <label htmlFor="requestPayload">Request Payload</label>
-            <input
-              type="radio"
-              id="headers"
-              name="comparisonOption"
-              value="headers"
-            />
-            <label htmlFor="headers">Headers</label>
-            <input
-              type="radio"
-              id="responsePayload"
-              name="comparisonOption"
-              value="response"
-            />
-            <label htmlFor="responsePayload">Response Payload</label>
-          </div>
-          {/* 新增比较按钮 */}
-          <button
-            onClick={() => {
-              const selectedOption = document.querySelector(
-                'input[name="comparisonOption"]:checked'
-              ) as HTMLInputElement;
-              if (selectedOption) {
-                const selectedValue = selectedOption.value;
+              onChange={(e) => {
+                const selectedValue = e.target.value;
                 let dataToCompare: any[] = [];
                 switch (selectedValue) {
                   case 'request':
@@ -331,17 +308,71 @@ export default function Dashboard() {
                   default:
                     break;
                 }
-                console.log('Data to compare:', dataToCompare);
-                setCompareDate(dataToCompare );
-                // 点击按钮后显示 JsonComparator 组件
-                setIsJsonComparatorVisible(true);
-              }
+                setCompareDate(dataToCompare);
+              }}
+            />
+            <label htmlFor="requestPayload">Request Payload</label>
+            <input
+              type="radio"
+              id="headers"
+              name="comparisonOption"
+              value="headers"
+              onChange={(e) => {
+                const selectedValue = e.target.value;
+                let dataToCompare: any[] = [];
+                switch (selectedValue) {
+                  case 'request':
+                    dataToCompare = successCallLogs.map(log => log.request);
+                    break;
+                  case 'headers':
+                    dataToCompare = successCallLogs.map(log => log.headers);
+                    break;
+                  case 'response':
+                    dataToCompare = successCallLogs.map(log => log.response);
+                    break;
+                  default:
+                    break;
+                }
+                setCompareDate(dataToCompare);
+              }}
+            />
+            <label htmlFor="headers">Headers</label>
+            <input
+              type="radio"
+              id="responsePayload"
+              name="comparisonOption"
+              value="response"
+              onChange={(e) => {
+                const selectedValue = e.target.value;
+                let dataToCompare: any[] = [];
+                switch (selectedValue) {
+                  case 'request':
+                    dataToCompare = successCallLogs.map(log => log.request);
+                    break;
+                  case 'headers':
+                    dataToCompare = successCallLogs.map(log => log.headers);
+                    break;
+                  case 'response':
+                    dataToCompare = successCallLogs.map(log => log.response);
+                    break;
+                  default:
+                    break;
+                }
+                setCompareDate(dataToCompare);
+              }}
+            />
+            <label htmlFor="responsePayload">Response Payload</label>
+          </div>
+          {/* 新增比较按钮 */}
+          <button
+            onClick={() => {
+              setIsJsonComparatorVisible(true);
             }}
           >
             比较选中的数据
           </button>
           {/* 根据状态控制 JsonComparator 组件的显示与隐藏 */}
-          {isJsonComparatorVisible && (
+          {isJsonComparatorVisible && compareDate.length >= 2 && (
             <JsonComparator
               blueJson={compareDate[0]}
               greenJson={compareDate[1]}
