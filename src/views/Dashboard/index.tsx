@@ -6,6 +6,7 @@ import request from '@/utils/request'; // 引入 request 工具类
 // 修改 ApiLogType 接口以匹配新的数据结构
 interface ApiLogType {
   id: string;
+  key: React.Key; // 这是唯一标识
   url: string;
   successNumber: number;
   failedNumber: number | null;
@@ -122,44 +123,52 @@ export default function Dashboard() {
     pagination.pageSize,
     pagination.total,
   ]);
+  const fetchData = async () => {
+    try {
+      // 获取 API 调用统计数据
+      const summaryResponse = await request.get('/v1/mongodb/summary');
+      const summaryData = summaryResponse as unknown as ApiSummaryData;
+      setMetriciData({
+        successNumber: summaryData.totalSuccessNumber,
+        failedNumber: summaryData.totalFailedNumber,
+        totalNumber: summaryData.totalNumber,
+      });
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // 获取 API 调用统计数据
-        const summaryResponse = await request.get('/v1/mongodb/summary');
-        const summaryData = summaryResponse as unknown as ApiSummaryData;
-        setMetriciData({
-          successNumber: summaryData.totalSuccessNumber,
-          failedNumber: summaryData.totalFailedNumber,
-          totalNumber: summaryData.totalNumber,
-        });
-
-        // 获取 API 日志数据，这里需要根据分页信息请求对应数据
-        const logsResponse = await request.get('/v1/mongodb/findAll', {
-          params: {
-            page: pagination.current - 1, // 后端分页从 0 开始，前端从 1 开始，所以减 1
-            pageSize: pagination.pageSize,
-          },
-        }) as {
-          _embedded: { myDocumentList: ApiLogType[] };
-          page: { totalElements: number };
+      // 获取 API 日志数据，这里需要根据分页信息请求对应数据
+      const logsResponse = await request.get('/v1/mongodb/findAll', {
+        params: {
+          page: pagination.current - 1, // 后端分页从 0 开始，前端从 1 开始，所以减 1
+          pageSize: pagination.pageSize,
+        },
+      }) as {
+        _embedded: { myDocumentList: ApiLogType[] };
+        page: {
+          totalElements: number;
+          size: number;
+          number: number;
         };
+      };
 
-        // 适配新的接口返回格式
-        const logsData = logsResponse._embedded.myDocumentList as ApiLogType[];
-        const total = logsResponse.page.totalElements;
-        setApiLogs(logsData);
-        setPagination({
-          ...pagination,
-          total,
-        });
-      } catch (error) {
-        console.error('获取数据时出错:', error);
-      }
+      // 适配新的接口返回格式
+      const logsData = logsResponse._embedded.myDocumentList as ApiLogType[];
+      const total = logsResponse.page.totalElements;
+      setApiLogs(logsData);
+      setPagination({
+        ...pagination,
+        pageSize: logsResponse.page.size, // 保持 pageSize 不变
+        current: logsResponse.page.number + 1, // 保持 current 不变
+        total,
+      });
+    } catch (error) {
+      console.error('获取数据时出错:', error);
+    }
+  };
+  useEffect(() => {
+    const fetchDataAsync = async () => {
+      console.log('stablePagination changed:', stablePagination);
+      await fetchData();
     };
-
-    fetchData();
+    fetchDataAsync();
   }, [stablePagination]);
 
   const onTableChange = (newPagination: any, filters: any, sorter: any) => {
