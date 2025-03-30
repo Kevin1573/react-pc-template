@@ -1,43 +1,12 @@
 import { Card, Row, Col, Table, Modal, Spin, Radio, Button, Space } from 'antd';
 import type { TableColumnsType } from 'antd';
-import React, { useState, useEffect, useMemo } from 'react';
-import request from '@/utils/request';
+import React, { useEffect } from 'react';
+import { useDashboardStore } from '@/store/dashboard';
 import JsonComparator from '@/components/JsonComparator';
 
-// 定义 API 日志类型接口
-interface ApiLogType {
-  id: string;
-  key: React.Key;
-  url: string;
-  successNumber: number;
-  failedNumber: number | null;
-  totalNumber: number;
-  name: string;
-  createTime: string;
-}
-
-// 定义 API 统计数据接口
-interface ApiSummaryData {
-  totalSuccessNumber: number;
-  totalFailedNumber: number;
-  totalNumber: number;
-}
-
-// 定义成功调用详细记录类型接口
-interface SuccessCallLogType {
-  id: string;
-  key: string;
-  url: string;
-  method: string;
-  request: string;
-  headers: { [key: string]: string };
-  response: string;
-  statusCode: number;
-  responseTime: string;
-}
-
 // 统计卡片组件
-const MetricCards = ({ metriciData }: { metriciData: ApiSummaryData }) => {
+const MetricCards = () => {
+  const { metriciData } = useDashboardStore();
   return (
     <Row gutter={16} style={{ marginTop: '30px' }}>
       <Col span={8}>
@@ -60,18 +29,9 @@ const MetricCards = ({ metriciData }: { metriciData: ApiSummaryData }) => {
 };
 
 // API 日志表格组件
-const ApiLogTable = ({
-  apiLogs,
-  pagination,
-  onTableChange,
-  handleShowSuccessModal
-}: {
-  apiLogs: ApiLogType[];
-  pagination: { current: number; pageSize: number; total: number };
-  onTableChange: (newPagination: any) => void;
-  handleShowSuccessModal: (record: ApiLogType) => void;
-}) => {
-  const apiLogColumns: TableColumnsType<ApiLogType> = [
+const ApiLogTable = () => {
+  const { apiLogs, pagination, onTableChange, handleShowSuccessModal } = useDashboardStore();
+  const apiLogColumns: TableColumnsType<any> = [
     {
       key: 'id',
       title: 'ID',
@@ -85,12 +45,11 @@ const ApiLogTable = ({
       width: '20%'
     },
     {
-      key: 'successNumber',
+      key: 'id',
       title: '成功次数',
       dataIndex: 'successNumber',
       width: '15%',
       render: (text, record) => (
-        // 生成唯一的 key
         <span key={`${record.key}-successNumber`} style={{ cursor: 'pointer' }} onClick={() => handleShowSuccessModal(record)}>
           {text}
         </span>
@@ -126,7 +85,7 @@ const ApiLogTable = ({
     <Row style={{ marginTop: '30px' }}>
       <Col span={24}>
         <Card title="API 日志列表">
-          <Table<ApiLogType>
+          <Table
             columns={apiLogColumns}
             dataSource={apiLogs}
             onChange={onTableChange}
@@ -139,32 +98,25 @@ const ApiLogTable = ({
 };
 
 // 成功调用详细记录模态框组件
-const SuccessCallModal = ({
-  isSuccessModalVisible,
-  handleCloseSuccessModal,
-  successCallLogs,
-  isLoadingSuccessLogs,
-  isJsonComparatorVisible,
-  compareDate,
-  setIsJsonComparatorVisible,
-  setCompareDate
-}: {
-  isSuccessModalVisible: boolean;
-  handleCloseSuccessModal: () => void;
-  successCallLogs: SuccessCallLogType[];
-  isLoadingSuccessLogs: boolean;
-  isJsonComparatorVisible: boolean;
-  compareDate: any[];
-  setIsJsonComparatorVisible: (visible: boolean) => void;
-  setCompareDate: (data: any[]) => void;
-}) => {
-  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+const SuccessCallModal = () => {
+  const {
+    isSuccessModalVisible,
+    handleCloseSuccessModal,
+    successCallLogs,
+    isLoadingSuccessLogs,
+    isJsonComparatorVisible,
+    compareDate,
+    setIsJsonComparatorVisible,
+    setCompareDate
+  } = useDashboardStore();
+  const [selectedRowKeys, setSelectedRowKeys] = React.useState<React.Key[]>([]);
 
   const handleRadioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedValue = e.target.value;
     let dataToCompare: any[] = [];
-    console.log('successCallLogs', successCallLogs);
 
+    console.log("successCallLogs>>>", successCallLogs);
+    
     switch (selectedValue) {
       case 'request':
         dataToCompare = successCallLogs.map((log) => log.request);
@@ -178,7 +130,6 @@ const SuccessCallModal = ({
       default:
         break;
     }
-    console.log("dataToCompare", dataToCompare);
 
     setCompareDate(dataToCompare);
   };
@@ -253,11 +204,11 @@ const SuccessCallModal = ({
               }
             ]}
             pagination={false}
-            // 添加 rowSelection 属性
             rowSelection={rowSelection}
+            // Ensure each row has a unique key
+            rowKey={(record) => record.id} 
           />
           <div style={{ margin: '16px 0' }}>
-            {/* 使用 Ant Design 的 Radio.Group 和 Radio.Button 组件 */}
             <Radio.Group onChange={(e) => handleRadioChange({ target: { value: e.target.value } } as React.ChangeEvent<HTMLInputElement>)}>
               <Radio.Button value="request">Request Payload</Radio.Button>
               <Radio.Button value="headers">Headers</Radio.Button>
@@ -285,128 +236,17 @@ const SuccessCallModal = ({
 
 // 主 Dashboard 组件
 export default function Dashboard() {
-  const [metriciData, setMetriciData] = useState<ApiSummaryData>({
-    totalSuccessNumber: 0,
-    totalFailedNumber: 0,
-    totalNumber: 0
-  });
-  const [apiLogs, setApiLogs] = useState<ApiLogType[]>([]);
-  const [pagination, setPagination] = useState({
-    current: 1,
-    pageSize: 5,
-    total: 0
-  });
-  const stablePagination = useMemo(() => pagination, [
-    pagination.current,
-    pagination.pageSize,
-    pagination.total
-  ]);
-  const [successCallLogs, setSuccessCallLogs] = useState<SuccessCallLogType[]>([]);
-  const [isSuccessModalVisible, setIsSuccessModalVisible] = useState(false);
-  const [isLoadingSuccessLogs, setIsLoadingSuccessLogs] = useState(false);
-  const [isJsonComparatorVisible, setIsJsonComparatorVisible] = useState(false);
-  const [compareDate, setCompareDate] = useState<any[]>([]);
-
-  const fetchData = async () => {
-    try {
-      const summaryResponse = await request.get('/v1/mongodb/summary');
-      const summaryData = summaryResponse as unknown as ApiSummaryData;
-      setMetriciData(summaryData);
-
-      const logsResponse = await request.get('/v1/mongodb/findAll', {
-        params: {
-          page: pagination.current - 1,
-          pageSize: pagination.pageSize
-        }
-      }) as {
-        _embedded: { apiCallSummaryList: ApiLogType[] };
-        page: {
-          totalElements: number;
-          size: number;
-          number: number;
-        };
-      };
-
-      const logsData = logsResponse._embedded.apiCallSummaryList as ApiLogType[];
-      const total = logsResponse.page.totalElements;
-
-      setApiLogs(logsData);
-      setPagination({
-        ...pagination,
-        pageSize: logsResponse.page.size,
-        current: logsResponse.page.number + 1,
-        total
-      });
-    } catch (error) {
-      console.error('获取数据时出错:', error);
-    }
-  };
+  const { fetchData } = useDashboardStore();
 
   useEffect(() => {
-    const fetchDataAsync = async () => {
-      console.log('stablePagination changed:', stablePagination);
-      await fetchData();
-    };
-    fetchDataAsync();
-  }, [stablePagination]);
-
-  const onTableChange = (newPagination: any) => {
-    if (
-      newPagination.current !== stablePagination.current ||
-      newPagination.pageSize !== stablePagination.pageSize
-    ) {
-      setPagination(newPagination);
-    }
-  };
-
-  const handleShowSuccessModal = async (record: ApiLogType) => {
-    setIsLoadingSuccessLogs(true);
-    try {
-      // 打印请求的 URL，方便调试
-      const requestUrl = `/v1/apiCall/findBy/${record.key}`;
-      console.log('请求 URL:', requestUrl);
-      const response = await request.get(requestUrl, {
-        params: {
-          url: record.url,
-          success: true
-        }
-      });
-      // 打印返回的数据，方便调试
-      console.log('返回的数据:', response);
-
-      const data = response as unknown as SuccessCallLogType[];
-      setSuccessCallLogs(data);
-      setIsSuccessModalVisible(true);
-    } catch (error) {
-      console.error('获取成功详细调用记录时出错:', error);
-    } finally {
-      setIsLoadingSuccessLogs(false);
-    }
-  };
-
-  const handleCloseSuccessModal = () => {
-    setIsSuccessModalVisible(false);
-  };
+    fetchData();
+  }, []);
 
   return (
     <>
-      <MetricCards metriciData={metriciData} />
-      <ApiLogTable
-        apiLogs={apiLogs}
-        pagination={pagination}
-        onTableChange={onTableChange}
-        handleShowSuccessModal={handleShowSuccessModal}
-      />
-      <SuccessCallModal
-        isSuccessModalVisible={isSuccessModalVisible}
-        handleCloseSuccessModal={handleCloseSuccessModal}
-        successCallLogs={successCallLogs}
-        isLoadingSuccessLogs={isLoadingSuccessLogs}
-        isJsonComparatorVisible={isJsonComparatorVisible}
-        compareDate={compareDate}
-        setIsJsonComparatorVisible={setIsJsonComparatorVisible}
-        setCompareDate={setCompareDate}
-      />
+      <MetricCards />
+      <ApiLogTable />
+      <SuccessCallModal />
     </>
   );
 }
