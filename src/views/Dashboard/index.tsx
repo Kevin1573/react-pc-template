@@ -1,4 +1,4 @@
-import { Card, Row, Col, Table, Modal, Spin, Radio, Button, Space } from 'antd';
+import { Card, Row, Col, Table, Modal, Spin, Radio, Button, Space, Tooltip } from 'antd';
 import type { TableColumnsType } from 'antd';
 import React, { useEffect } from 'react';
 import { useDashboardStore } from '@/store/dashboard';
@@ -115,7 +115,7 @@ const SuccessCallModal = () => {
   const handleRadioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedValue = e.target.value;
     let dataToCompare: any[] = [];
-    
+
     switch (selectedValue) {
       case 'request':
         dataToCompare = successCallLogs.map((log) => log.request);
@@ -166,42 +166,79 @@ const SuccessCallModal = () => {
               {
                 title: 'ID',
                 dataIndex: 'id',
-                key: 'id'
+                width: '100px',
+                key: 'id',
+                ellipsis: {
+                  showTitle: false,
+                },
               },
               {
                 title: 'URL',
                 dataIndex: 'url',
-                key: 'url'
+                key: 'url',
+                width: '180px',
+                ellipsis: {
+                  showTitle: false,
+                },
               },
               {
                 title: '请求方法',
                 dataIndex: 'method',
+                width: '90px',
                 key: 'method'
               },
               {
                 title: '请求体',
                 dataIndex: 'request',
                 key: 'request',
-                render: (text) => <pre>{text.length > 100 ? `${text.slice(0, 100)}...` : text}</pre>
+                width: '150px',
+                ellipsis: {
+                  showTitle: false,
+                },
+                //render: (text) => <pre>{text.length > 100 ? `${text.slice(0, 100)}...` : text}</pre>
               },
               {
                 title: '请求头',
                 dataIndex: 'headers',
                 key: 'headers',
-                render: (headers) => {
-                  const headersStr = JSON.stringify(headers);
-                  return <pre>{headersStr.length > 100 ? `${headersStr.slice(0, 100)}...` : headersStr}</pre>;
-                }
+                width: '180px',
+                ellipsis: {
+                  showTitle: false,
+                },
+                render: (headers) => (
+                  <Tooltip placement="topLeft" title={headers}>
+                    <pre style={{
+                      maxWidth: '100%',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis'
+                    }}>{headers}</pre>
+                  </Tooltip>
+                )
               },
               {
                 title: '响应体',
                 dataIndex: 'response',
                 key: 'response',
-                render: (text) => <pre>{text.length > 100 ? `${text.slice(0, 100)}...` : text}</pre>
+                width: '280px',
+                ellipsis: {
+                  showTitle: true,
+                },
+                render: (text) => (
+                  <Tooltip placement="topLeft" title={text}>
+                    <pre style={{
+                      maxWidth: '100%',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis'
+                    }}>{text.length > 100 ? `${text.slice(0, 100)}` : text}</pre>
+                  </Tooltip>
+                )
               },
               {
                 title: '状态码',
                 dataIndex: 'statusCode',
+                width: '80px',
                 key: 'statusCode'
               },
               {
@@ -212,10 +249,10 @@ const SuccessCallModal = () => {
             ]}
             pagination={false}
             rowSelection={rowSelection}
-            rowKey={(record) => record.id} 
+            rowKey={(record) => record.id}
           />
           <div style={{ margin: '16px 0' }}>
-            <Radio.Group 
+            <Radio.Group
               value={selectedRadioValue} // 绑定 Radio 选择值
               onChange={(e) => handleRadioChange({ target: { value: e.target.value } } as React.ChangeEvent<HTMLInputElement>)}
             >
