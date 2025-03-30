@@ -110,12 +110,11 @@ const SuccessCallModal = () => {
     setCompareDate
   } = useDashboardStore();
   const [selectedRowKeys, setSelectedRowKeys] = React.useState<React.Key[]>([]);
+  const [selectedRadioValue, setSelectedRadioValue] = React.useState<string | null>(null); // 新增状态来存储 Radio 选择值
 
   const handleRadioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedValue = e.target.value;
     let dataToCompare: any[] = [];
-
-    console.log("successCallLogs>>>", successCallLogs);
     
     switch (selectedValue) {
       case 'request':
@@ -132,6 +131,7 @@ const SuccessCallModal = () => {
     }
 
     setCompareDate(dataToCompare);
+    setSelectedRadioValue(selectedValue); // 更新选择的 Radio 值
   };
 
   const rowSelection = {
@@ -141,11 +141,18 @@ const SuccessCallModal = () => {
     },
   };
 
+  const handleCloseModal = () => {
+    handleCloseSuccessModal();
+    setSelectedRadioValue(null); // 关闭模态框时重置 Radio 选择值
+    setSelectedRowKeys([]); // 可选：如果需要，也可以重置行选择
+    setCompareDate([]); // 重置比较数据
+  };
+
   return (
     <Modal
       title="成功详细调用记录"
       open={isSuccessModalVisible}
-      onCancel={handleCloseSuccessModal}
+      onCancel={handleCloseModal}
       width="90%"
       footer={null}
     >
@@ -205,11 +212,13 @@ const SuccessCallModal = () => {
             ]}
             pagination={false}
             rowSelection={rowSelection}
-            // Ensure each row has a unique key
             rowKey={(record) => record.id} 
           />
           <div style={{ margin: '16px 0' }}>
-            <Radio.Group onChange={(e) => handleRadioChange({ target: { value: e.target.value } } as React.ChangeEvent<HTMLInputElement>)}>
+            <Radio.Group 
+              value={selectedRadioValue} // 绑定 Radio 选择值
+              onChange={(e) => handleRadioChange({ target: { value: e.target.value } } as React.ChangeEvent<HTMLInputElement>)}
+            >
               <Radio.Button value="request">Request Payload</Radio.Button>
               <Radio.Button value="headers">Headers</Radio.Button>
               <Radio.Button value="response">Response Payload</Radio.Button>

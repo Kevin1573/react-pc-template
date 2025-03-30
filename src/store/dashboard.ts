@@ -130,7 +130,8 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
       const data = response as unknown as SuccessCallLogType[];
       set({
         successCallLogs: data,
-        isSuccessModalVisible: true
+        isSuccessModalVisible: true,
+        compareDate: [] // 重置 compareDate
       });
     } catch (error) {
       console.error('获取成功详细调用记录时出错:', error);
