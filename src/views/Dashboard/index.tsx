@@ -73,41 +73,49 @@ const ApiLogTable = ({
 }) => {
   const apiLogColumns: TableColumnsType<ApiLogType> = [
     {
+      key: 'id',
       title: 'ID',
       dataIndex: 'id',
       width: '15%'
     },
     {
+      key: 'url',
       title: 'URL',
       dataIndex: 'url',
       width: '20%'
     },
     {
+      key: 'successNumber',
       title: '成功次数',
       dataIndex: 'successNumber',
       width: '15%',
       render: (text, record) => (
-        <span style={{ cursor: 'pointer' }} onClick={() => handleShowSuccessModal(record)}>
+        // 生成唯一的 key
+        <span key={`${record.key}-successNumber`} style={{ cursor: 'pointer' }} onClick={() => handleShowSuccessModal(record)}>
           {text}
         </span>
       )
     },
     {
+      key: 'failedNumber',
       title: '失败次数',
       dataIndex: 'failedNumber',
       width: '15%'
     },
     {
+      key: 'totalNumber',
       title: '总次数',
       dataIndex: 'totalNumber',
       width: '15%'
     },
     {
+      key: 'name',
       title: '名称',
       dataIndex: 'name',
       width: '15%'
     },
     {
+      key: 'createTime',
       title: '创建时间',
       dataIndex: 'createTime',
       width: '20%'
@@ -150,9 +158,13 @@ const SuccessCallModal = ({
   setIsJsonComparatorVisible: (visible: boolean) => void;
   setCompareDate: (data: any[]) => void;
 }) => {
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+
   const handleRadioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedValue = e.target.value;
     let dataToCompare: any[] = [];
+    console.log('successCallLogs', successCallLogs);
+
     switch (selectedValue) {
       case 'request':
         dataToCompare = successCallLogs.map((log) => log.request);
@@ -166,7 +178,16 @@ const SuccessCallModal = ({
       default:
         break;
     }
+    console.log("dataToCompare", dataToCompare);
+
     setCompareDate(dataToCompare);
+  };
+
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: (keys: React.Key[]) => {
+      setSelectedRowKeys(keys);
+    },
   };
 
   return (
@@ -203,19 +224,22 @@ const SuccessCallModal = ({
                 title: '请求体',
                 dataIndex: 'request',
                 key: 'request',
-                render: (text) => <pre>{text}</pre>
+                render: (text) => <pre>{text.length > 100 ? `${text.slice(0, 100)}...` : text}</pre>
               },
               {
                 title: '请求头',
                 dataIndex: 'headers',
                 key: 'headers',
-                render: (headers) => <pre>{JSON.stringify(headers, null, 2)}</pre>
+                render: (headers) => {
+                  const headersStr = JSON.stringify(headers);
+                  return <pre>{headersStr.length > 100 ? `${headersStr.slice(0, 100)}...` : headersStr}</pre>;
+                }
               },
               {
                 title: '响应体',
                 dataIndex: 'response',
                 key: 'response',
-                render: (text) => <pre>{text}</pre>
+                render: (text) => <pre>{text.length > 100 ? `${text.slice(0, 100)}...` : text}</pre>
               },
               {
                 title: '状态码',
@@ -229,6 +253,8 @@ const SuccessCallModal = ({
               }
             ]}
             pagination={false}
+            // 添加 rowSelection 属性
+            rowSelection={rowSelection}
           />
           <div style={{ margin: '16px 0' }}>
             {/* 使用 Ant Design 的 Radio.Group 和 Radio.Button 组件 */}
@@ -336,12 +362,18 @@ export default function Dashboard() {
   const handleShowSuccessModal = async (record: ApiLogType) => {
     setIsLoadingSuccessLogs(true);
     try {
-      const response = await request.get('/v1/apiCall/findAll', {
+      // 打印请求的 URL，方便调试
+      const requestUrl = `/v1/apiCall/findBy/${record.key}`;
+      console.log('请求 URL:', requestUrl);
+      const response = await request.get(requestUrl, {
         params: {
           url: record.url,
           success: true
         }
       });
+      // 打印返回的数据，方便调试
+      console.log('返回的数据:', response);
+
       const data = response as unknown as SuccessCallLogType[];
       setSuccessCallLogs(data);
       setIsSuccessModalVisible(true);
