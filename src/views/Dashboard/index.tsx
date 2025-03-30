@@ -3,6 +3,7 @@ import type { TableColumnsType } from 'antd';
 import React, { useEffect } from 'react';
 import { useDashboardStore } from '@/store/dashboard';
 import JsonComparator from '@/components/JsonComparator';
+import Copy from '@/components/Copy';
 
 // 统计卡片组件
 const MetricCards = () => {
@@ -222,17 +223,27 @@ const SuccessCallModal = () => {
                 key: 'response',
                 width: '280px',
                 ellipsis: {
-                  showTitle: true,
+                  showTitle: false,
                 },
                 render: (text) => (
-                  <Tooltip placement="topLeft" title={text}>
-                    <pre style={{
-                      maxWidth: '100%',
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis'
-                    }}>{text.length > 100 ? `${text.slice(0, 100)}` : text}</pre>
-                  </Tooltip>
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <Tooltip
+                      placement="topLeft"
+                      title={
+                        <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+                          {text}
+                        </div>
+                      }
+                    >
+                      <pre style={{
+                        maxWidth: '100%',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis'
+                      }}>{text.length > 100 ? `${text.slice(0, 100)}` : text}</pre>
+                    </Tooltip>
+                    <Copy toClipboard={text} text="复制" />
+                  </div>
                 )
               },
               {
