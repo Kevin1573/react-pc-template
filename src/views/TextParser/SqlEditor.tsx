@@ -36,12 +36,22 @@ const parseInsertFunc = (text: string) => {
     console.log(parser);
     const ast: any = parser.astify(sql, opt);
     const sql2 = parser.sqlify(ast, opt);
-    console.log(ast, sql2);
-    console.log("header", ast.columns);
-    console.log("row-data", ast.values[0].value);
+    console.log("ast:", ast, "sql2:", sql2);
+
+    // 处理now()函数值
+    const processedValues = ast.values[0].value.map((item: any) => {
+      if (item.type === 'function' && item.name?.name[0].value === 'now') {
+        return {
+          type: 'function',
+          value: 'now()',
+          name: 'now'
+        };
+      }
+      return item;
+    });
     return {
       header: ast.columns,
-      rowdata: ast.values[0].value,
+      rowdata: processedValues  // 使用处理后的值
     };
   } catch (error: any) {
     console.error("解析SQL语句出错:", error?.message);
@@ -160,15 +170,22 @@ const SqlEditor: React.FunctionComponent<SqlEditorProps> = () => {
                 <tbody className="bg-white divide-y divide-gray-200">
                   <tr key={"row"} className="hover:bg-gray-50">
                     {sqlValues.length > 0 ? (
-                      sqlValues.map((item: any, index) =>
-                        item.type == "origin" || item.type == 'single_quote_string' ? (
-                          <td key={index} className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {item.value}
-                          </td>
-                        ) : (
-                          <td key={index}>no</td>
-                        )
-                      )
+                      sqlValues.map((item: any, index) => {
+                        if (item.type === "origin" || item.type === 'single_quote_string') {
+                          return (
+                            <td key={index} className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                              {item.value}
+                            </td>
+                          );
+                        } else if (item.type === 'function' && item.name === 'now') {
+                          return (
+                            <td key={index} className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                              {item.value}
+                            </td>
+                          );
+                        }
+                        return <td key={index}>no</td>;
+                      })
                     ) : (
                       <td key={"3"}>no field</td>
                     )}
