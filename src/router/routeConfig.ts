@@ -43,6 +43,10 @@ const items: MenuItem[] = [
     ],
   },
   {
+    key: "/json-diff",
+    label: "json diff page",
+  },
+  {
     type: "divider",
   },
   {

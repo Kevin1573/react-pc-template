@@ -49,6 +49,12 @@ pnpm install
 pnpm dev
 ```
 
+```bash
+docker build -t react-app:latest .
+
+docker run --name react-app -p 3000:80 -d react-app:latest
+```
+
 ## 未来计划
 
 1. 添加更多功能，如：菜单管理、角色管理、用户管理、日志管理、数据字典等

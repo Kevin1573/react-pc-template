@@ -97,6 +97,18 @@ export default <PageRouteItem[]>[
     },
   },
   {
+    id: "/json-diff",
+    parent: null,
+    order_num: 4,
+    path: "/json-diff",
+    element: "/JsonDiffViewPage/index",
+    meta: {
+      label: "json-diff",
+      icon: "TdesignGridView",
+      isRouter: true,
+    },
+  },
+  {
     id: "/text",
     parent: "transfer",
     order_num: 1,

@@ -1,29 +1,45 @@
-import { Card, Row, Col, Table, Modal, Spin, Radio, Button, Space, Tooltip } from 'antd';
+import { Card, Row, Col, Table, Modal, Spin, Radio, Button, Space, Tooltip, Statistic, Segmented, Flex } from 'antd';
 import type { TableColumnsType } from 'antd';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDashboardStore } from '@/store/dashboard';
 import JsonComparator from '@/components/JsonComparator';
 import Copy from '@/components/Copy';
+import { AppstoreOutlined, ArrowDownOutlined, ArrowUpOutlined, BarsOutlined } from '@ant-design/icons';
 
 // 统计卡片组件
 const MetricCards = () => {
   const { metriciData } = useDashboardStore();
+  const [compare] = useState(false);
+  //style={{ marginTop: '30px', marginLeft: '30px' }}
   return (
-    <Row gutter={16} style={{ marginTop: '30px' }}>
-      <Col span={8}>
-        <Card title="API 调用成功次数">
-          <p style={{ fontSize: '24px', textAlign: 'center' }}>{metriciData.totalSuccessNumber}</p>
-        </Card>
+    <Row gutter={16} style={{ marginTop: 40 }}>
+      <Col span={4} offset={2}>
+        <Statistic title="Successed API calls" valueStyle={{ color: '#3f8600' }} value={metriciData.totalSuccessNumber} />
       </Col>
-      <Col span={8}>
-        <Card title="API 调用失败次数">
-          <p style={{ fontSize: '24px', textAlign: 'center' }}>{metriciData.totalFailedNumber}</p>
-        </Card>
+      <Col span={4}>
+        <Statistic title="Failed API calls" valueStyle={{ color: '#cf1322' }} value={metriciData.totalFailedNumber} />
       </Col>
-      <Col span={8}>
-        <Card title="API 调用总次数">
-          <p style={{ fontSize: '24px', textAlign: 'center' }}>{metriciData.totalNumber}</p>
-        </Card>
+      <Col span={4}>
+        <Statistic title="Total number of API calls" value={metriciData.totalSuccessNumber} />
+      </Col>
+      <Col span={4}>
+        <Statistic title="Failed / Total number of API calls" value={metriciData.totalFailedNumber} suffix={"/ " + metriciData.totalNumber} />
+      </Col>
+      <Col>
+        {compare ? (<Statistic
+          title="趋势"
+          value={10}
+          valueStyle={{ color: '#3f8600' }}
+          prefix={<ArrowUpOutlined />}
+          suffix='%'
+        />) :
+          (<Statistic
+            title="趋势"
+            value={9}
+            valueStyle={{ color: '#cf1322' }}
+            prefix={<ArrowDownOutlined />}
+            suffix='%'
+          />)}
       </Col>
     </Row>
   );
@@ -46,33 +62,21 @@ const ApiLogTable = () => {
       width: '20%'
     },
     {
-      key: 'id',
-      title: '成功次数',
-      dataIndex: 'successNumber',
-      width: '15%',
-      render: (text, record) => (
-        <span key={`${record.key}-successNumber`} style={{ cursor: 'pointer' }} onClick={() => handleShowSuccessModal(record)}>
-          {text}
-        </span>
-      )
-    },
-    {
-      key: 'failedNumber',
-      title: '失败次数',
-      dataIndex: 'failedNumber',
-      width: '15%'
-    },
-    {
-      key: 'totalNumber',
-      title: '总次数',
-      dataIndex: 'totalNumber',
-      width: '15%'
-    },
-    {
       key: 'name',
       title: '名称',
       dataIndex: 'name',
       width: '15%'
+    },
+    {
+      key: 'failedNumber',
+      title: '查看详情',
+      dataIndex: 'failedNumber',
+      width: '15%',
+      render: (_, record) => (
+        <Button type='link' onClick={() => handleShowSuccessModal(record)}>
+          {'查看详情'}
+        </Button>
+      )
     },
     {
       key: 'createTime',
@@ -263,23 +267,35 @@ const SuccessCallModal = () => {
             rowKey={(record) => record.id}
           />
           <div style={{ margin: '16px 0' }}>
-            <Radio.Group
-              value={selectedRadioValue} // 绑定 Radio 选择值
-              onChange={(e) => handleRadioChange({ target: { value: e.target.value } } as React.ChangeEvent<HTMLInputElement>)}
-            >
-              <Radio.Button value="request">Request Payload</Radio.Button>
-              <Radio.Button value="headers">Headers</Radio.Button>
-              <Radio.Button value="response">Response Payload</Radio.Button>
-            </Radio.Group>
-            <Space size="middle" style={{ marginLeft: 10 }}>
-              <Button
-                onClick={() => {
-                  setIsJsonComparatorVisible(true);
-                }}
-              >
-                比较选中的数据
-              </Button>
-            </Space>
+            <Flex gap="middle" justify="space-between" >
+              <Flex >
+                <Radio.Group
+                  value={selectedRadioValue} // 绑定 Radio 选择值
+                  onChange={(e) => handleRadioChange({ target: { value: e.target.value } } as React.ChangeEvent<HTMLInputElement>)}
+                >
+                  <Radio.Button value="request">Request Payload</Radio.Button>
+                  <Radio.Button value="headers">Headers</Radio.Button>
+                  <Radio.Button value="response">Response Payload</Radio.Button>
+                </Radio.Group>
+                <Space size="middle" style={{ marginLeft: 10 }}>
+                  <Button
+                    onClick={() => {
+                      setIsJsonComparatorVisible(true);
+                    }}
+                  >
+                    比较选中的数据
+                  </Button>
+                </Space>
+              </Flex>
+              <Flex>
+                <Segmented
+                  options={[
+                    { value: 'List', icon: <BarsOutlined /> },
+                    { value: 'Kanban', icon: <AppstoreOutlined /> },
+                  ]}
+                />
+              </Flex>
+            </Flex>
           </div>
 
           {isJsonComparatorVisible && compareDate.length >= 2 && (

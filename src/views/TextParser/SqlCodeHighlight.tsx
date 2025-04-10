@@ -18,7 +18,7 @@ const SqlCodeHighlight: FC = () => {
       <Input.TextArea
         onPaste={handlePaste}
         placeholder='在此处粘贴SQL代码'
-        onChange={(e) => console.log(e)}
+        onChange={(e) => setSqlCode(e.target.value)}
         rows={5} />
 
       {sqlCode && (

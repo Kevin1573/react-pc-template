@@ -6,6 +6,7 @@ import LayoutContent from "@/layout/layout";
 import Login from "@/views/Login";
 import Dashboard from "@/views/Dashboard";
 import JsonView from "@/views/JsonView";
+import JsonDiffViewPage from "@/views/JsonDiffViewPage";
 
 // 获取 views 目录下的全部 .jsx .tsx 文件
 // eslint-disable-next-line @typescript-eslint/ban-types
@@ -55,6 +56,10 @@ export default function getSystemRoutes(pageRoutes: PageRouteItem[]) {
     {
       path: "/json-view",
       element: <JsonView />,
+    },
+    {
+      path: "/json-diff",
+      element: <JsonDiffViewPage />,
     },
     {
       path: "/dashboard",
