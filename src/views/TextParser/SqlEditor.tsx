@@ -5,6 +5,9 @@ import { Parser } from "node-sql-parser";
 // import { debounce } from 'lodash';
 import { HappyProvider } from "@ant-design/happy-work-theme";
 import RButton from "@/components/RButton";
+import { Col, Flex, Row, Segmented } from "antd";
+import { AppstoreOutlined, BarsOutlined } from "@ant-design/icons";
+import type { ReactCodeMirrorProps } from "@uiw/react-codemirror";
 
 interface SqlEditorProps {
   // 可以在这里定义一些外部传入的属性，比如初始代码内容等，当前示例暂未使用外部传入属性
@@ -59,6 +62,24 @@ const SqlEditor: React.FunctionComponent<SqlEditorProps> = () => {
   const [sqlColumns, setSqlColumns] = useState<string[]>([]);
   const [sqlValues, setSqlValues] = useState<string[]>([]);
   const [tableStatus, setTableStatus] = useState(false);
+  const [currentTheme, setCurrentTheme] = useState<ReactCodeMirrorProps['theme']>('dark');
+
+  const themeConfig = [{
+    theme: 'light', // 初始主题为 'light'
+    styles: {
+      border: '1px solid #d9d9d9',
+      borderRadius: '6px',
+      boxShadow: '0 1px 2px rgba(0, 0, 0, 0.08)',
+      overflow: 'hidden'
+    }
+  }, {
+    theme: 'dark', // 初始主题为 'light'
+    styles: {
+      border: '1px solid #434343',
+      borderRadius: '6px',
+      overflow: 'hidden'
+    }
+  }];
 
   const onChange = useCallback((val: string, viewUpdate: any) => {
     console.log("val:", val, viewUpdate);
@@ -80,12 +101,42 @@ const SqlEditor: React.FunctionComponent<SqlEditorProps> = () => {
   return (
     <>
       <div className="flex flex-col space-y-2">
-        <HappyProvider>
-          <RButton block onClick={handleSqlParse}>
-            转换
-          </RButton>
-        </HappyProvider>
-        <CodeMirror value={value} height="200px" extensions={[sql()]} onChange={onChange} />
+        <Row>
+          <Col span={6} offset={6}>
+            <HappyProvider>
+              <Flex justify="center">
+                <RButton block style={{ width: 200 }} onClick={handleSqlParse}>
+                  转换
+                </RButton>
+              </Flex>
+            </HappyProvider>
+          </Col>
+          <Col span={6} offset={6}>
+            <Flex justify="end">
+              <Segmented
+                defaultValue={currentTheme === 'dark' ? 'dark' : 'light'}
+                options={[
+                  { value: 'light', icon: <BarsOutlined /> },
+                  { value: 'dark', icon: <AppstoreOutlined /> },
+                ]}
+                onChange={(value: 'light' | 'dark') => { setCurrentTheme(value) }}
+              />
+            </Flex>
+          </Col>
+        </Row>
+
+        <CodeMirror value={value}
+          height="400px"
+          extensions={[sql()]}
+          onChange={onChange}
+          style={{
+            ...themeConfig.filter(item => item.theme === currentTheme)[0]?.styles,
+            fontFamily: '"JetBrains Mono", monospace', // 添加等宽字体
+            fontSize: '16px',
+            lineHeight: '1.5',
+            letterSpacing: '0.3px'
+          }}
+          theme={currentTheme} />
         <div className="overflow-x-auto">
           {tableStatus ? (
             <>
