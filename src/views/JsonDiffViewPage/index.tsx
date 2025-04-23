@@ -1,12 +1,14 @@
 import Copy from "@/components/Copy";
 import JsonDiffPage from "@/components/JsonDiff";
-import { Card, Flex, Row, Col, Divider, Space, Button } from "antd";
+import { Card, Flex, Row, Col, Divider, Space, Button, Input } from "antd";
 import Title from "antd/lib/typography/Title";
 import { Differ } from 'json-diff-kit';
-import { useState, useMemo } from 'react';
-// 导入 JSON 文件
-import beforeObj from '../../data/before.json';
-import afterObj from '../../data/after.json';
+import { useState, useMemo, useRef } from 'react';
+const { TextArea } = Input;
+
+// 移除原有的文件导入
+// import beforeObj from '../../data/before.json';
+// import afterObj from '../../data/after.json';
 
 // 递归生成节点路径
 const generatePaths = (obj: any, prefix = ''): string[] => {
@@ -55,11 +57,192 @@ const addPrefixToTreeData = (treeData: any[], prefix: string): any[] => {
     });
 };
 
-const beforeTreeData = generateTreeData(beforeObj);
-const afterTreeData = generateTreeData(afterObj);
+export default function jsonDiffViewPage() {
+    const showDiffButtonRef = useRef<HTMLButtonElement>(null);
 
-const prefixedBeforeTreeData = addPrefixToTreeData(beforeTreeData, 'before_');
-const prefixedAfterTreeData = addPrefixToTreeData(afterTreeData, 'after_');
+    const scrollToShowDiffButton = () => {
+        if (showDiffButtonRef.current) {
+            showDiffButtonRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+    };
+
+    // 定义滚动到页面顶部的函数
+    const scrollToTop = () => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    };
+
+    const [beforeJsonInput, setBeforeJsonInput] = useState('');
+    const [afterJsonInput, setAfterJsonInput] = useState('');
+    const [beforeObj, setBeforeObj] = useState<any>({});
+    const [afterObj, setAfterObj] = useState<any>({});
+
+    const [selectedBeforePath, setSelectedBeforePath] = useState('');
+    const [selectedAfterPath, setSelectedAfterPath] = useState('');
+    const differ = useMemo(() => {
+        return new Differ({
+            detectCircular: true,    // 默认 `true`
+            maxDepth: Infinity,      // 默认 `Infinity`
+            showModifications: true, // 默认 `true`
+            arrayDiffMethod: 'normal',  // 默认 `"normal"`, 但 `"lcs"` 可能更有用
+        });
+    }, []);
+
+    const [diff, setDiff] = useState(() => {
+        return differ.diff(beforeObj, afterObj);
+    });
+
+    const [shouldShowDiff, setShouldShowDiff] = useState(false);
+    // 新增状态来保存当前的 beforeValue 和 afterValue
+    const [currentBeforeValue, setCurrentBeforeValue] = useState(beforeObj);
+    const [currentAfterValue, setCurrentAfterValue] = useState(afterObj);
+
+    // 根据路径获取对象的值
+    const getValueByPath = (obj: any, path: string) => {
+        // Remove the prefix
+        const actualPath = path.replace(/^(before_|after_)/, '');
+        const keys = actualPath.split('.');
+        let value = obj;
+        for (const key of keys) {
+            if (value && typeof value === 'object' && key in value) {
+                value = value[key];
+            } else {
+                return undefined;
+            }
+        }
+        return value;
+    };
+
+    const handleBeforeJsonChange = (value: string) => {
+        setBeforeJsonInput(value);
+        try {
+            const parsedObj = JSON.parse(value);
+            setBeforeObj(parsedObj);
+        } catch (error) {
+            console.error('Before JSON 解析失败:', error);
+        }
+    };
+
+    const handleAfterJsonChange = (value: string) => {
+        setAfterJsonInput(value);
+        try {
+            const parsedObj = JSON.parse(value);
+            setAfterObj(parsedObj);
+        } catch (error) {
+            console.error('After JSON 解析失败:', error);
+        }
+    };
+
+    const handleShowDiff = () => {
+        let beforeValue = beforeObj;
+        let afterValue = afterObj;
+        if (selectedBeforePath) {
+            const tempBefore = getValueByPath(beforeObj, `before_${selectedBeforePath}`);
+            if (tempBefore !== undefined) {
+                beforeValue = tempBefore;
+            }
+        }
+        if (selectedAfterPath) {
+            const tempAfter = getValueByPath(afterObj, `after_${selectedAfterPath}`);
+            if (tempAfter !== undefined) {
+                afterValue = tempAfter;
+            }
+        }
+
+        const newDiff = differ.diff(beforeValue, afterValue);
+
+        // 打印当前选择节点 before 和 after 的节点数据以及比对时的数据
+        console.log('当前选择节点的 before 数据:', beforeValue);
+        console.log('当前选择节点的 after 数据:', afterValue);
+        console.log('比对时的数据:', newDiff);
+
+        setDiff(newDiff);
+        setShouldShowDiff(true);
+        // 更新当前的 beforeValue 和 afterValue
+        setCurrentBeforeValue(beforeValue);
+        setCurrentAfterValue(afterValue);
+    };
+
+    const beforeTreeData = generateTreeData(beforeObj);
+    const afterTreeData = generateTreeData(afterObj);
+
+    const prefixedBeforeTreeData = addPrefixToTreeData(beforeTreeData, 'before_');
+    const prefixedAfterTreeData = addPrefixToTreeData(afterTreeData, 'after_');
+
+    return (
+        <>
+            {/* 悬浮按钮组 */}
+            <div style={{ position: 'fixed', top: 20, right: 20, zIndex: 1000, display: 'flex', gap: 10 }}>
+                <Button onClick={scrollToShowDiffButton}>滚动到差异按钮</Button>
+                {/* 新增滚动到顶部的按钮 */}
+                <Button onClick={scrollToTop}>返回顶部</Button>
+            </div>
+            <Card>
+                <Row gutter={16}>
+                    <Col span={12}>
+                        <Title level={4}>输入 Before JSON</Title>
+                        <TextArea
+                            rows={10}
+                            value={beforeJsonInput}
+                            onChange={(e) => handleBeforeJsonChange(e.target.value)}
+                        />
+                    </Col>
+                    <Col span={12}>
+                        <Title level={4}>输入 After JSON</Title>
+                        <TextArea
+                            rows={10}
+                            value={afterJsonInput}
+                            onChange={(e) => handleAfterJsonChange(e.target.value)}
+                        />
+                    </Col>
+                </Row>
+                {/* 修改这里的 Row，设置 gutter 为 20 */}
+                <Row gutter={20}>
+                    <Col span={12}>
+                        <Flex justify="center" align="center" style={{ flexDirection: 'column' }}>
+                            <Title level={4}>Before Tree</Title>
+                            {/* 修改这里的宽度为 100% */}
+                            <div style={{ width: '100%', marginTop: 16, border: '1px solid #d9d9d9', padding: 10 }}>
+                                <CustomTree treeData={prefixedBeforeTreeData} onSelect={(path) => setSelectedBeforePath(path.replace('before_', ''))} />
+                            </div>
+                        </Flex>
+                    </Col>
+                    <Col span={12}>
+                        <Flex justify="center" align="center" style={{ flexDirection: 'column' }}>
+                            <Title level={4}>After Tree</Title>
+                            {/* 修改这里的宽度为 100% */}
+                            <div style={{ width: '100%', marginTop: 16, border: '1px solid #d9d9d9', padding: 10 }}>
+                                <CustomTree treeData={prefixedAfterTreeData} onSelect={(path) => setSelectedAfterPath(path.replace('after_', ''))} />
+                            </div>
+                        </Flex>
+                    </Col>
+                </Row>
+                <Flex justify="center" align="center" style={{ marginTop: 16 }}>
+                    <Button ref={showDiffButtonRef} onClick={handleShowDiff}>
+                        点击展示节点差异
+                    </Button>
+                </Flex>
+                <Space>
+                    {/* 修改 toClipboard 参数 */}
+                    <Copy text="复制left" toClipboard={JSON.stringify(currentBeforeValue)} />
+                    <Copy text="复制right" toClipboard={JSON.stringify(currentAfterValue)} />
+                </Space>
+                <Divider orientation="left">Horizontal</Divider>
+                <Row gutter={16}>
+                    <Col span={24}>
+                        {shouldShowDiff && (
+                            // 传递最新的 diff 数据
+                            // 通过扩展运算符将只读数组转换为可变数组
+                            <JsonDiffPage diff={[...diff]} />
+                        )}
+                    </Col>
+                </Row>
+            </Card>
+        </>
+    );
+}
 
 // 自定义树组件
 const CustomTree = ({ treeData, onSelect }: { treeData: any[], onSelect: (value: string) => void }) => {
@@ -104,130 +287,3 @@ const CustomTree = ({ treeData, onSelect }: { treeData: any[], onSelect: (value:
         </div>
     );
 };
-
-export default function jsonDiffViewPage() {
-    const [selectedBeforePath, setSelectedBeforePath] = useState('');
-    const [selectedAfterPath, setSelectedAfterPath] = useState('');
-    const differ = useMemo(() => {
-        return new Differ({
-            detectCircular: true,    // 默认 `true`
-            maxDepth: Infinity,      // 默认 `Infinity`
-            showModifications: true, // 默认 `true`
-            arrayDiffMethod: 'normal',  // 默认 `"normal"`, 但 `"lcs"` 可能更有用
-        });
-    }, []);
-
-    const [diff, setDiff] = useState(() => {
-        let beforeValue = beforeObj;
-        let afterValue = afterObj;
-        if (selectedBeforePath) {
-            const tempBefore = getValueByPath(beforeObj, `before_${selectedBeforePath}`);
-            if (tempBefore !== undefined) {
-                beforeValue = tempBefore;
-            }
-        }
-        if (selectedAfterPath) {
-            const tempAfter = getValueByPath(afterObj, `after_${selectedAfterPath}`);
-            if (tempAfter !== undefined) {
-                afterValue = tempAfter;
-            }
-        }
-        return differ.diff(beforeValue, afterValue);
-    });
-
-    const [shouldShowDiff, setShouldShowDiff] = useState(false);
-    // 新增状态来保存当前的 beforeValue 和 afterValue
-    const [currentBeforeValue, setCurrentBeforeValue] = useState(beforeObj);
-    const [currentAfterValue, setCurrentAfterValue] = useState(afterObj);
-
-    // 根据路径获取对象的值
-    const getValueByPath = (obj: any, path: string) => {
-        // Remove the prefix
-        const actualPath = path.replace(/^(before_|after_)/, '');
-        const keys = actualPath.split('.');
-        let value = obj;
-        for (const key of keys) {
-            if (value && typeof value === 'object' && key in value) {
-                value = value[key];
-            } else {
-                return undefined;
-            }
-        }
-        return value;
-    };
-
-    const handleShowDiff = () => {
-        let beforeValue = beforeObj;
-        let afterValue = afterObj;
-        if (selectedBeforePath) {
-            const tempBefore = getValueByPath(beforeObj, `before_${selectedBeforePath}`);
-            if (tempBefore !== undefined) {
-                beforeValue = tempBefore;
-            }
-        }
-        if (selectedAfterPath) {
-            const tempAfter = getValueByPath(afterObj, `after_${selectedAfterPath}`);
-            if (tempAfter !== undefined) {
-                afterValue = tempAfter;
-            }
-        }
-
-        const newDiff = differ.diff(beforeValue, afterValue);
-
-        // 打印当前选择节点 before 和 after 的节点数据以及比对时的数据
-        console.log('当前选择节点的 before 数据:', beforeValue);
-        console.log('当前选择节点的 after 数据:', afterValue);
-        console.log('比对时的数据:', newDiff);
-
-        setDiff(newDiff);
-        setShouldShowDiff(true);
-        // 更新当前的 beforeValue 和 afterValue
-        setCurrentBeforeValue(beforeValue);
-        setCurrentAfterValue(afterValue);
-    };
-
-    return (
-        <>
-            <Card>
-                <Row gutter={16}>
-                    <Col span={12}>
-                        <Flex justify="center" align="center" style={{ flexDirection: 'column' }}>
-                            <Title level={4}>Before Tree</Title>
-                            <div style={{ width: 400, marginTop: 16, border: '1px solid #d9d9d9', padding: 10 }}>
-                                <CustomTree treeData={prefixedBeforeTreeData} onSelect={(path) => setSelectedBeforePath(path.replace('before_', ''))} />
-                            </div>
-                        </Flex>
-                    </Col>
-                    <Col span={12}>
-                        <Flex justify="center" align="center" style={{ flexDirection: 'column' }}>
-                            <Title level={4}>After Tree</Title>
-                            <div style={{ width: 400, marginTop: 16, border: '1px solid #d9d9d9', padding: 10 }}>
-                                <CustomTree treeData={prefixedAfterTreeData} onSelect={(path) => setSelectedAfterPath(path.replace('after_', ''))} />
-                            </div>
-                        </Flex>
-                    </Col>
-                </Row>
-                <Flex justify="center" align="center" style={{ marginTop: 16 }}>
-                    <Button onClick={handleShowDiff}>
-                        点击展示节点差异
-                    </Button>
-                </Flex>
-                <Space>
-                    {/* 修改 toClipboard 参数 */}
-                    <Copy text="复制left" toClipboard={JSON.stringify(currentBeforeValue)} />
-                    <Copy text="复制right" toClipboard={JSON.stringify(currentAfterValue)} />
-                </Space>
-                <Divider orientation="left">Horizontal</Divider>
-                <Row gutter={16}>
-                    <Col span={24}>
-                        {shouldShowDiff && (
-                            // 传递最新的 diff 数据
-                            // 通过扩展运算符将只读数组转换为可变数组
-                            <JsonDiffPage diff={[...diff]} />
-                        )}
-                    </Col>
-                </Row>
-            </Card>
-        </>
-    );
-}

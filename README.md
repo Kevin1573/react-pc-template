@@ -34,6 +34,10 @@
 
 ```bash
 git clone https://gitee.com/mj-project/react-pc-template.git
+
+git pull origin master
+git remote add github https://github.com/Kevin1573/react-pc-template.git
+git push github master
 ```
 
 2. **安装依赖**
