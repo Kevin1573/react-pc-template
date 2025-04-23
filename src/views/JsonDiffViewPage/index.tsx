@@ -57,6 +57,101 @@ const addPrefixToTreeData = (treeData: any[], prefix: string): any[] => {
     });
 };
 
+// 自定义树组件
+const CustomTree = ({ treeData, onSelect, beforeObj, afterObj }: { treeData: any[], onSelect: (value: string) => void, beforeObj: any, afterObj: any }) => {
+    // 新增状态，用于记录当前选中的节点值
+    const [selectedValue, setSelectedValue] = useState('');
+
+    // 根据路径获取对象的值
+    const getValueByPath = (obj: any, path: string) => {
+        const keys = path.split('.');
+        let value = obj;
+        for (const key of keys) {
+            if (value && typeof value === 'object' && key in value) {
+                value = value[key];
+            } else {
+                return undefined;
+            }
+        }
+        return value;
+    };
+
+    const renderNode = (node: any) => {
+        const handleClick = () => {
+            onSelect(node.value);
+            // 点击时更新选中的节点值
+            setSelectedValue(node.value);
+        };
+
+        // 判断是 before 还是 after 的路径
+        let objToUse;
+        if (node.value.startsWith('before_')) {
+            objToUse = beforeObj;
+            node.value = node.value.replace('before_', '');
+        } else if (node.value.startsWith('after_')) {
+            objToUse = afterObj;
+            node.value = node.value.replace('after_', '');
+        }
+
+        const nodeValue = getValueByPath(objToUse, node.value);
+        const displayValue = typeof nodeValue === 'object' ? JSON.stringify(nodeValue) : nodeValue;
+
+        // 判断当前节点是否为数组下标
+        const isArrayIndex = Array.isArray(getParentObject(objToUse, node.value)) && !isNaN(Number(node.title));
+
+        // 根据选中状态动态设置样式
+        const nodeStyle = {
+            cursor: 'pointer',
+            paddingLeft: node.level ? node.level * 20 : 0,
+            backgroundColor: selectedValue === node.value ? '#e6f7ff' : 'transparent', // 选中时变蓝色
+            whiteSpace: 'nowrap', // 防止文本换行
+            overflow: 'hidden', // 隐藏溢出内容
+            textOverflow: 'ellipsis', // 溢出内容用省略号表示
+            maxWidth: '100%', // 限制最大宽度
+        };
+
+        // 新增获取父对象的函数
+        function getParentObject(obj: any, path: string) {
+            const keys = path.split('.');
+            let parent = obj;
+            for (let i = 0; i < keys.length - 1; i++) {
+                const key = keys[i];
+                if (parent && typeof parent === 'object' && key in parent) {
+                    parent = parent[key];
+                } else {
+                    return null;
+                }
+            }
+            return parent;
+        }
+
+        return (
+            <div>
+                <div onClick={handleClick} style={nodeStyle}>
+                    {/* 对 node.title 加粗处理 */}
+                    <span style={{ fontWeight: 'bold' }}>{node.title}</span>: {isArrayIndex ? '' : displayValue}
+                </div>
+                {node.children && node.children.map((child: any) => (
+                    <div key={child.key}>
+                        {renderNode({ ...child, level: (node.level || 0) + 1 })}
+                    </div>
+                ))}
+            </div>
+        );
+    };
+
+    return (
+        <div>
+            {treeData.map((node) => (
+                <div key={node.key}>
+                    {renderNode(node)}
+                </div>
+            ))}
+        </div>
+    );
+};
+
+// 修改主组件的返回部分，传递 beforeObj 和 afterObj 给 CustomTree
 export default function jsonDiffViewPage() {
     const showDiffButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -205,7 +300,7 @@ export default function jsonDiffViewPage() {
                             <Title level={4}>Before Tree</Title>
                             {/* 修改这里的宽度为 100% */}
                             <div style={{ width: '100%', marginTop: 16, border: '1px solid #d9d9d9', padding: 10 }}>
-                                <CustomTree treeData={prefixedBeforeTreeData} onSelect={(path) => setSelectedBeforePath(path.replace('before_', ''))} />
+                                <CustomTree treeData={prefixedBeforeTreeData} onSelect={(path) => setSelectedBeforePath(path.replace('before_', ''))} beforeObj={beforeObj} afterObj={afterObj} />
                             </div>
                         </Flex>
                     </Col>
@@ -214,7 +309,7 @@ export default function jsonDiffViewPage() {
                             <Title level={4}>After Tree</Title>
                             {/* 修改这里的宽度为 100% */}
                             <div style={{ width: '100%', marginTop: 16, border: '1px solid #d9d9d9', padding: 10 }}>
-                                <CustomTree treeData={prefixedAfterTreeData} onSelect={(path) => setSelectedAfterPath(path.replace('after_', ''))} />
+                                <CustomTree treeData={prefixedAfterTreeData} onSelect={(path) => setSelectedAfterPath(path.replace('after_', ''))} beforeObj={beforeObj} afterObj={afterObj} />
                             </div>
                         </Flex>
                     </Col>
@@ -241,49 +336,5 @@ export default function jsonDiffViewPage() {
                 </Row>
             </Card>
         </>
-    );
+    )
 }
-
-// 自定义树组件
-const CustomTree = ({ treeData, onSelect }: { treeData: any[], onSelect: (value: string) => void }) => {
-    // 新增状态，用于记录当前选中的节点值
-    const [selectedValue, setSelectedValue] = useState('');
-
-    const renderNode = (node: any) => {
-        const handleClick = () => {
-            onSelect(node.value);
-            // 点击时更新选中的节点值
-            setSelectedValue(node.value);
-        };
-
-        // 根据选中状态动态设置样式
-        const nodeStyle = {
-            cursor: 'pointer',
-            paddingLeft: node.level ? node.level * 20 : 0,
-            backgroundColor: selectedValue === node.value ? '#e6f7ff' : 'transparent', // 选中时变蓝色
-        };
-
-        return (
-            <div>
-                <div onClick={handleClick} style={nodeStyle}>
-                    {node.title}
-                </div>
-                {node.children && node.children.map((child: any) => (
-                    <div key={child.key}>
-                        {renderNode({ ...child, level: (node.level || 0) + 1 })}
-                    </div>
-                ))}
-            </div>
-        );
-    };
-
-    return (
-        <div>
-            {treeData.map((node) => (
-                <div key={node.key}>
-                    {renderNode(node)}
-                </div>
-            ))}
-        </div>
-    );
-};
