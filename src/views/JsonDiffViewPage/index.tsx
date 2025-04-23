@@ -1,6 +1,6 @@
 import Copy from "@/components/Copy";
 import JsonDiffPage from "@/components/JsonDiff";
-import { Card, Flex, Row, Col, Divider, Space, Button, Input } from "antd";
+import { Card, Flex, Row, Col, Divider, Space, Button, Input, Switch } from "antd";
 import Title from "antd/lib/typography/Title";
 import { Differ } from 'json-diff-kit';
 import { useState, useMemo, useRef } from 'react';
@@ -181,7 +181,7 @@ export default function jsonDiffViewPage() {
             detectCircular: true,    // 默认 `true`
             maxDepth: Infinity,      // 默认 `Infinity`
             showModifications: true, // 默认 `true`
-            arrayDiffMethod: 'normal',  // 默认 `"normal"`, 但 `"lcs"` 可能更有用
+            arrayDiffMethod: 'lcs',  // 默认 `"normal"`, 但 `"lcs"` 可能更有用
         });
     }, []);
 
@@ -193,7 +193,8 @@ export default function jsonDiffViewPage() {
     // 新增状态来保存当前的 beforeValue 和 afterValue
     const [currentBeforeValue, setCurrentBeforeValue] = useState(beforeObj);
     const [currentAfterValue, setCurrentAfterValue] = useState(afterObj);
-
+    // 使用 useState 来管理开关状态
+    const [isWordMode, setIsWordMode] = useState(false);
     // 根据路径获取对象的值
     const getValueByPath = (obj: any, path: string) => {
         // Remove the prefix
@@ -210,23 +211,45 @@ export default function jsonDiffViewPage() {
         return value;
     };
 
+    // 定义一个函数用于格式化和排序 JSON 数据
+    const formatAndSortJson = (jsonObj: any): any => {
+        if (typeof jsonObj !== 'object' || jsonObj === null) {
+            return jsonObj;
+        }
+        if (Array.isArray(jsonObj)) {
+            return jsonObj.map(item => formatAndSortJson(item));
+        }
+        const sortedKeys = Object.keys(jsonObj).sort();
+        const sortedObj: Record<string, any> = {};
+        for (const key of sortedKeys) {
+            sortedObj[key] = formatAndSortJson(jsonObj[key]);
+        }
+        return sortedObj;
+    };
+
     const handleBeforeJsonChange = (value: string) => {
-        setBeforeJsonInput(value);
         try {
             const parsedObj = JSON.parse(value);
-            setBeforeObj(parsedObj);
+            const formattedObj = formatAndSortJson(parsedObj);
+            const formattedJsonString = JSON.stringify(formattedObj, null, 2);
+            setBeforeJsonInput(formattedJsonString);
+            setBeforeObj(formattedObj);
         } catch (error) {
             console.error('Before JSON 解析失败:', error);
+            setBeforeJsonInput(value);
         }
     };
 
     const handleAfterJsonChange = (value: string) => {
-        setAfterJsonInput(value);
         try {
             const parsedObj = JSON.parse(value);
-            setAfterObj(parsedObj);
+            const formattedObj = formatAndSortJson(parsedObj);
+            const formattedJsonString = JSON.stringify(formattedObj, null, 2);
+            setAfterJsonInput(formattedJsonString);
+            setAfterObj(formattedObj);
         } catch (error) {
             console.error('After JSON 解析失败:', error);
+            setAfterJsonInput(value);
         }
     };
 
@@ -270,14 +293,14 @@ export default function jsonDiffViewPage() {
         <>
             {/* 悬浮按钮组 */}
             <div style={{ position: 'fixed', top: 20, right: 20, zIndex: 1000, display: 'flex', gap: 10 }}>
-                <Button onClick={scrollToShowDiffButton}>滚动到差异按钮</Button>
+                <Button onClick={scrollToShowDiffButton}>Scroll to the difference button</Button>
                 {/* 新增滚动到顶部的按钮 */}
-                <Button onClick={scrollToTop}>返回顶部</Button>
+                <Button onClick={scrollToTop}>Back To Top</Button>
             </div>
             <Card>
                 <Row gutter={16}>
                     <Col span={12}>
-                        <Title level={4}>输入 Before JSON</Title>
+                        <Title level={4}>Input Left JSON</Title>
                         <TextArea
                             rows={10}
                             value={beforeJsonInput}
@@ -285,7 +308,7 @@ export default function jsonDiffViewPage() {
                         />
                     </Col>
                     <Col span={12}>
-                        <Title level={4}>输入 After JSON</Title>
+                        <Title level={4}>Input Right JSON</Title>
                         <TextArea
                             rows={10}
                             value={afterJsonInput}
@@ -316,21 +339,29 @@ export default function jsonDiffViewPage() {
                 </Row>
                 <Flex justify="center" align="center" style={{ marginTop: 16 }}>
                     <Button ref={showDiffButtonRef} onClick={handleShowDiff}>
-                        点击展示节点差异
+                        Click to display node differences
                     </Button>
                 </Flex>
                 <Space>
                     {/* 修改 toClipboard 参数 */}
-                    <Copy text="复制left" toClipboard={JSON.stringify(currentBeforeValue)} />
-                    <Copy text="复制right" toClipboard={JSON.stringify(currentAfterValue)} />
+                    <Copy text="Copy Left" toClipboard={JSON.stringify(currentBeforeValue)} />
+                    <Copy text="Copy Right" toClipboard={JSON.stringify(currentAfterValue)} />
                 </Space>
                 <Divider orientation="left">Horizontal</Divider>
                 <Row gutter={16}>
                     <Col span={24}>
                         {shouldShowDiff && (
-                            // 传递最新的 diff 数据
-                            // 通过扩展运算符将只读数组转换为可变数组
-                            <JsonDiffPage diff={[...diff]} />
+                            <>
+                                <Switch
+                                    checked={isWordMode}
+                                    onChange={() => setIsWordMode(!isWordMode)}
+                                    checkedChildren="Word 模式"
+                                    unCheckedChildren="Char 模式"
+                                />
+                                {/* // 传递最新的 diff 数据
+                                // 通过扩展运算符将只读数组转换为可变数组 */}
+                                <JsonDiffPage diff={[...diff]} mode={isWordMode}/>
+                            </>
                         )}
                     </Col>
                 </Row>
