@@ -23,8 +23,8 @@ const prepareHandleSql = (sql: string) => {
 
 const parseInsertFunc = (text: string) => {
   let sql = text; //text.toUpperCase();
-  // sql预处理
   /**
+   * sql预处理
    * replace /n
    */
   sql = prepareHandleSql(sql);
@@ -59,11 +59,6 @@ const parseInsertFunc = (text: string) => {
 
   return { header: [], rowdata: [] };
 };
-
-const getValue4DiffSqlValues = (columnType: any) => {
-  return "";
-}
-
 
 const SqlEditor: React.FunctionComponent<SqlEditorProps> = () => {
   const [value, setValue] = React.useState(

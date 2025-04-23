@@ -14,9 +14,9 @@ const JsonDiffPage: React.FC<PageProps> = props => {
             diff={props.diff}          // required
             indent={4}                 // default `2`
             lineNumbers={true}         // default `false`
-            highlightInlineDiff={true} // default `false`
+            highlightInlineDiff={false} // default `false`
             inlineDiffOptions={{
-                mode: 'char',            // default `"char"`, but `"word"` may be more useful
+                mode: 'word',            // default `"char"`, but `"word"` may be more useful
                 wordSeparator: ' ',      // default `""`, but `" "` is more useful for sentences
             }}
             syntaxHighlight={{theme: 'monokai'}}    // default `false`

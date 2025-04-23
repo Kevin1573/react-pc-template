@@ -32,11 +32,11 @@ export default defineConfig({
     port: 3000,
     proxy: {
       "/mock": { target: "" }, // Mock 专用: https://github.com/pengzhanbo/vite-plugin-mock-dev-server
-      "/v1": {
-        target: "http://localhost:8999", // 代理地址
-        changeOrigin: true, // 是否跨域
-        rewrite: (path) => path.replace(/^\/v1/, "/v1"), // 重写路径
-      },
+      // "/v1": {
+      //   target: "http://localhost:8999", // 代理地址
+      //   changeOrigin: true, // 是否跨域
+      //   rewrite: (path) => path.replace(/^\/v1/, "/v1"), // 重写路径
+      // },
     },
   },
   css: { preprocessorOptions: { scss: { api: "modern" } } },

@@ -1,0 +1,37 @@
+{
+    "this_is_a_very_very_long_field_name_level_1": {
+        "this_is_a_very_very_long_field_name_level_2": {
+            "this_is_a_very_very_long_field_name_level_3": {
+                "this_is_a_very_very_long_field_name_level_4": {
+                    "this_is_a_very_very_long_field_name_level_5": {
+                        "this_is_a_very_very_long_field_name_level_6": {
+                            "this_is_a_very_very_long_field_name_level_7": {
+                                "this_is_a_very_very_long_field_name_level_8": {
+                                    "this_is_a_very_very_long_field_name_level_9": {
+                                        "this_is_a_very_very_long_field_name_level_10": "value_in_deep_level"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "another_very_long_field_name": [
+            {
+                "long_field_name_item_1": "item_value_1",
+                "long_field_name_item_2": {
+                    "nested_long_field_1": "nested_value_1",
+                    "nested_long_field_2": [1, 2, 3, 4, 5]
+                }
+            },
+            {
+                "long_field_name_item_3": "item_value_3",
+                "long_field_name_item_4": {
+                    "nested_long_field_3": "nested_value_3",
+                    "nested_long_field_4": [6, 7, 8, 9, 10]
+                }
+            }
+        ]
+    }
+}
