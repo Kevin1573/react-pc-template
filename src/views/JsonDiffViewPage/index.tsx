@@ -178,10 +178,13 @@ export default function jsonDiffViewPage() {
     const [selectedAfterPath, setSelectedAfterPath] = useState('');
     const differ = useMemo(() => {
         return new Differ({
-            detectCircular: true,    // 默认 `true`
-            maxDepth: Infinity,      // 默认 `Infinity`
-            showModifications: true, // 默认 `true`
-            arrayDiffMethod: 'lcs',  // 默认 `"normal"`, 但 `"lcs"` 可能更有用
+            detectCircular: true,
+            maxDepth: Infinity,
+            showModifications: true,
+            arrayDiffMethod: 'lcs',
+            ignoreCase: false,
+            ignoreCaseForKey: false,
+            recursiveEqual: true
         });
     }, []);
 
@@ -227,6 +230,7 @@ export default function jsonDiffViewPage() {
         return sortedObj;
     };
 
+    // 修改 handleBeforeJsonChange 函数
     const handleBeforeJsonChange = (value: string) => {
         try {
             const parsedObj = JSON.parse(value);
@@ -234,12 +238,15 @@ export default function jsonDiffViewPage() {
             const formattedJsonString = JSON.stringify(formattedObj, null, 2);
             setBeforeJsonInput(formattedJsonString);
             setBeforeObj(formattedObj);
-        } catch (error) {
+        } catch (error: any) {
             console.error('Before JSON 解析失败:', error);
             setBeforeJsonInput(value);
+            // 设置包含错误信息的对象
+            setBeforeObj({ error: `JSON 解析错误: ${error.message}` });
         }
     };
 
+    // 修改 handleAfterJsonChange 函数
     const handleAfterJsonChange = (value: string) => {
         try {
             const parsedObj = JSON.parse(value);
@@ -247,9 +254,11 @@ export default function jsonDiffViewPage() {
             const formattedJsonString = JSON.stringify(formattedObj, null, 2);
             setAfterJsonInput(formattedJsonString);
             setAfterObj(formattedObj);
-        } catch (error) {
+        } catch (error: any) {
             console.error('After JSON 解析失败:', error);
             setAfterJsonInput(value);
+            // 设置包含错误信息的对象
+            setAfterObj({ error: `JSON 解析错误: ${error.message}` });
         }
     };
 
@@ -279,6 +288,30 @@ export default function jsonDiffViewPage() {
         setDiff(newDiff);
         setShouldShowDiff(true);
         // 更新当前的 beforeValue 和 afterValue
+        setCurrentBeforeValue(beforeValue);
+        setCurrentAfterValue(afterValue);
+    };
+
+    // 新增一个函数，用于在模式切换时重新计算 diff
+    const handleModeChange = () => {
+        setIsWordMode(!isWordMode);
+        let beforeValue = beforeObj;
+        let afterValue = afterObj;
+        if (selectedBeforePath) {
+            const tempBefore = getValueByPath(beforeObj, `before_${selectedBeforePath}`);
+            if (tempBefore !== undefined) {
+                beforeValue = tempBefore;
+            }
+        }
+        if (selectedAfterPath) {
+            const tempAfter = getValueByPath(afterObj, `after_${selectedAfterPath}`);
+            if (tempAfter !== undefined) {
+                afterValue = tempAfter;
+            }
+        }
+
+        const newDiff = differ.diff(beforeValue, afterValue);
+        setDiff(newDiff);
         setCurrentBeforeValue(beforeValue);
         setCurrentAfterValue(afterValue);
     };
@@ -347,20 +380,21 @@ export default function jsonDiffViewPage() {
                     <Copy text="Copy Left" toClipboard={JSON.stringify(currentBeforeValue)} />
                     <Copy text="Copy Right" toClipboard={JSON.stringify(currentAfterValue)} />
                 </Space>
-                <Divider orientation="left">Horizontal</Divider>
                 <Row gutter={16}>
                     <Col span={24}>
                         {shouldShowDiff && (
                             <>
                                 <Switch
                                     checked={isWordMode}
-                                    onChange={() => setIsWordMode(!isWordMode)}
+                                    onChange={handleModeChange}
                                     checkedChildren="Word 模式"
                                     unCheckedChildren="Char 模式"
+                                    style={{ marginTop: 16 }}
                                 />
+                                 <Divider orientation="left">Horizontal</Divider>
                                 {/* // 传递最新的 diff 数据
                                 // 通过扩展运算符将只读数组转换为可变数组 */}
-                                <JsonDiffPage diff={[...diff]} mode={isWordMode}/>
+                                <JsonDiffPage diff={[...diff]} mode={isWordMode} />
                             </>
                         )}
                     </Col>
